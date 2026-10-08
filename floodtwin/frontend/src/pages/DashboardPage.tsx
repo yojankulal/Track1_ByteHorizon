@@ -3,7 +3,8 @@ import {
   MapPin, AlertTriangle, Activity, Droplets,
   TrendingUp, Sliders, RefreshCw, BarChart3,
   Layers, Compass, Mountain, ArrowUpRight, ArrowDownRight, Filter, Clock,
-  Sparkles, CheckCircle2, ChevronDown, ChevronUp, FileText
+  Sparkles, CheckCircle2, ChevronDown, ChevronUp, FileText,
+  Shield, Crosshair, Target
 } from 'lucide-react';
 import Map, { Source, Layer, NavigationControl, FullscreenControl, MapLayerMouseEvent } from 'react-map-gl/maplibre';
 import {
@@ -670,57 +671,94 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* ─── BOTTOM PANEL: Side-Nav Switcher for Briefing vs Emergency Priorities (Full Width) ─── */}
-        <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-3.5 flex gap-3.5 min-h-[360px] shrink-0 shadow-xl">
-          {/* Side Nav Rail */}
-          <div className="w-60 shrink-0 flex flex-col gap-2.5 border-r border-[#1A2C46]/60 pr-3.5">
-            <div className="text-xs font-bold uppercase tracking-wider text-[#8A9EB8] px-1">
-              Operations Center
-            </div>
+        {/* ─── BOTTOM PANEL: Beautified Operations Center Side-Nav Rail & Workspace ─── */}
+        <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-4 flex gap-4 min-h-[370px] shrink-0 shadow-2xl relative overflow-hidden">
+          {/* Subtle Background Atmosphere Glow */}
+          <div className="absolute top-0 right-1/4 w-96 h-32 bg-blue-600/5 rounded-full blur-3xl pointer-events-none" />
 
-            <button
-              onClick={() => setBottomSection('briefing')}
-              className={clsx(
-                'p-3.5 rounded-xl border text-left transition-all flex flex-col gap-1.5',
-                bottomSection === 'briefing'
-                  ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
-                  : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742]'
-              )}
-            >
-              <div className="flex items-center gap-2.5 font-bold text-sm">
-                <Sparkles size={16} className={bottomSection === 'briefing' ? 'text-white' : 'text-blue-400'} />
-                <span>Flood Mitigation Briefing</span>
-              </div>
-              <span className={clsx('text-xs', bottomSection === 'briefing' ? 'text-blue-100' : 'text-[#5C85C5]')}>
-                AI Protocols & Directives
-              </span>
-            </button>
-
-            <button
-              onClick={() => setBottomSection('priority')}
-              className={clsx(
-                'p-3.5 rounded-xl border text-left transition-all flex flex-col gap-1.5 relative',
-                bottomSection === 'priority'
-                  ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
-                  : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742]'
-              )}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5 font-bold text-sm">
-                  <AlertTriangle size={16} className={bottomSection === 'priority' ? 'text-white' : 'text-red-400'} />
-                  <span>Priority Locations</span>
+          {/* Left Navigation Rail */}
+          <div className="w-64 shrink-0 flex flex-col justify-between border-r border-[#1A2C46]/80 pr-4">
+            <div className="space-y-3">
+              {/* Header Title */}
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2">
+                  <Shield size={15} className="text-blue-400" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-white">Operations Center</span>
                 </div>
-                <span className={clsx('text-xs font-mono px-2 py-0.5 rounded-full font-bold', bottomSection === 'priority' ? 'bg-white text-blue-700' : 'bg-red-500/20 text-red-400 border border-red-500/30')}>
-                  {priorities.length}
+                <span className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  ACTIVE
                 </span>
               </div>
-              <span className={clsx('text-xs', bottomSection === 'priority' ? 'text-blue-100' : 'text-[#5C85C5]')}>
-                Ranked Emergency Watchlist
-              </span>
-            </button>
+
+              {/* Navigation Options */}
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => setBottomSection('briefing')}
+                  className={clsx(
+                    'p-3.5 rounded-xl border text-left transition-all flex flex-col gap-1 relative group select-none',
+                    bottomSection === 'briefing'
+                      ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_18px_rgba(59,130,246,0.35)]'
+                      : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742] hover:border-blue-500/40'
+                  )}
+                >
+                  <div className="flex items-center gap-2.5 font-bold text-sm">
+                    <Sparkles size={16} className={bottomSection === 'briefing' ? 'text-cyan-200' : 'text-blue-400'} />
+                    <span>Mitigation Briefing</span>
+                  </div>
+                  <span className={clsx('text-xs pl-0.5', bottomSection === 'briefing' ? 'text-blue-100' : 'text-[#5C85C5]')}>
+                    AI Protocols & Safety Directives
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setBottomSection('priority')}
+                  className={clsx(
+                    'p-3.5 rounded-xl border text-left transition-all flex flex-col gap-1 relative group select-none',
+                    bottomSection === 'priority'
+                      ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_18px_rgba(59,130,246,0.35)]'
+                      : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742] hover:border-red-500/40'
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 font-bold text-sm">
+                      <Crosshair size={16} className={bottomSection === 'priority' ? 'text-cyan-200' : 'text-red-400'} />
+                      <span>Priority Locations</span>
+                    </div>
+                    <span className={clsx(
+                      'text-xs font-mono px-2 py-0.5 rounded-full font-bold transition-transform',
+                      bottomSection === 'priority'
+                        ? 'bg-white text-blue-700 shadow-sm'
+                        : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                    )}>
+                      {priorities.length}
+                    </span>
+                  </div>
+                  <span className={clsx('text-xs pl-0.5', bottomSection === 'priority' ? 'text-blue-100' : 'text-[#5C85C5]')}>
+                    Ranked Emergency Targets
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Situational Metric Pill */}
+            <div className="bg-[#050B14] border border-[#1A2C46] rounded-xl p-3 space-y-2 text-xs">
+              <div className="flex items-center justify-between text-[#8A9EB8]">
+                <span>Forecast Step</span>
+                <span className="font-mono font-bold text-cyan-400">{activeTimelineStep.label}</span>
+              </div>
+              <div className="flex items-center justify-between text-[#8A9EB8]">
+                <span>Peak Tide</span>
+                <span className="font-mono font-bold text-white">{activeTimelineStep.tideLevel}m</span>
+              </div>
+              <div className="flex items-center justify-between text-[#8A9EB8]">
+                <span>Critical Hazards</span>
+                <span className="font-mono font-bold text-red-400">{activeCriticalCount} Sectors</span>
+              </div>
+            </div>
           </div>
 
-          {/* Full Width Active Section Content Pane */}
+          {/* Full Width Active Workspace Content Pane */}
           <div className="flex-1 min-w-0">
             {bottomSection === 'briefing' ? (
               <BriefingCard
@@ -732,23 +770,33 @@ export default function DashboardPage() {
                 selectedCell={selectedCell}
               />
             ) : (
-              <div className="h-full flex flex-col justify-between p-1.5">
-                <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#1A2C46]">
-                  <div className="flex items-center gap-2.5">
-                    <AlertTriangle size={18} className="text-red-400" />
+              <div className="h-full flex flex-col justify-between p-1 space-y-3">
+                {/* Priority Locations Header */}
+                <div className="flex items-center justify-between pb-2.5 border-b border-[#1A2C46]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-500/15 border border-red-500/40 flex items-center justify-center text-red-400">
+                      <Crosshair size={18} />
+                    </div>
                     <div>
-                      <h3 className="text-base font-bold text-white">Emergency Priority Sectors</h3>
+                      <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+                        Emergency Priority Sectors
+                        <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30">
+                          {priorities.length} High-Risk Zones
+                        </span>
+                      </h3>
                       <p className="text-xs text-[#8A9EB8]">
-                        Click any priority sector to lock onto coordinates and highlight target zone on the map.
+                        Click any priority sector card below to lock radar targeting on the Sulawesi map.
                       </p>
                     </div>
                   </div>
-                  <span className="text-xs px-2.5 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/30 font-mono font-bold">
-                    {activeCriticalCount} Critical Hazards Active
+                  <span className="text-xs px-3 py-1 rounded-lg bg-red-500/15 text-red-400 border border-red-500/30 font-mono font-bold flex items-center gap-1.5">
+                    <AlertTriangle size={14} />
+                    {activeCriticalCount} Critical Inundations
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 overflow-y-auto flex-1 pr-1 max-h-60">
+                {/* Priority Sectors Grid */}
+                <div className="grid grid-cols-2 gap-3 overflow-y-auto flex-1 pr-1 max-h-56">
                   {priorities.map(p => {
                     const isSelected = selectedCell?.id === p.id;
                     return (
@@ -756,37 +804,61 @@ export default function DashboardPage() {
                         key={p.id}
                         onClick={() => selectPriority(p)}
                         className={clsx(
-                          'p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between select-none',
+                          'p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between select-none relative overflow-hidden group',
                           isSelected
-                            ? 'bg-blue-600/30 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)] ring-1 ring-blue-400'
-                            : 'bg-[#0D1B2E] border-[#1A2C46] hover:bg-[#132742] text-[#B4C6DF]'
+                            ? 'bg-blue-600/25 border-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)] ring-1 ring-blue-400'
+                            : 'bg-[#0D1B2E] border-[#1A2C46] hover:bg-[#132742] hover:border-blue-500/40 text-[#B4C6DF]'
                         )}
                       >
-                        <div className="flex items-center gap-3.5">
-                          <span className={clsx(
-                            'w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-sm',
-                            isSelected ? 'bg-blue-500 text-white' : 'bg-[#050B14] text-red-400 border border-[#1A2C46]'
-                          )}>
-                            #{p.rank}
-                          </span>
-                          <div>
-                            <div className="font-bold text-white text-sm flex items-center gap-2">
-                              <span>{p.id}</span>
-                              {isSelected && (
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-400 text-slate-900 font-bold">
-                                  TARGET LOCKED
-                                </span>
-                              )}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <span className={clsx(
+                              'w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-sm shrink-0 shadow-sm',
+                              isSelected
+                                ? 'bg-blue-500 text-white font-black'
+                                : p.rank === 1
+                                ? 'bg-red-500/20 text-red-400 border border-red-500/40'
+                                : 'bg-[#050B14] text-amber-400 border border-[#1A2C46]'
+                            )}>
+                              #{p.rank}
+                            </span>
+                            <div>
+                              <div className="font-bold text-white text-sm flex items-center gap-2">
+                                <span>{p.id}</span>
+                                {isSelected ? (
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-400 text-slate-950 font-black tracking-wide flex items-center gap-1 shadow-sm">
+                                    <Target size={11} /> TARGET LOCKED
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] font-mono text-[#5C85C5]">
+                                    {p.lat.toFixed(2)}°, {p.lon.toFixed(2)}°
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-[#8A9EB8] mt-0.5 leading-snug">{p.reason}</div>
                             </div>
-                            <div className="text-xs text-[#8A9EB8] mt-0.5">{p.reason}</div>
+                          </div>
+
+                          <div className="text-right shrink-0">
+                            <span className={clsx(
+                              'font-mono font-bold text-base',
+                              p.risk_level === 'Critical' ? 'text-red-400' : 'text-orange-400'
+                            )}>
+                              {p.flood_probability_percent}%
+                            </span>
+                            <div className="text-[10px] text-[#5C85C5] uppercase font-bold tracking-wider">{p.risk_level}</div>
                           </div>
                         </div>
 
-                        <div className="text-right">
-                          <span className={clsx('font-mono font-bold text-base', p.risk_level === 'Critical' ? 'text-red-400' : 'text-orange-400')}>
-                            {p.flood_probability_percent}%
-                          </span>
-                          <div className="text-[10px] text-[#5C85C5] uppercase font-bold">{p.risk_level}</div>
+                        {/* Probability Progress Bar */}
+                        <div className="mt-3 w-full bg-[#050B14] rounded-full h-1.5 overflow-hidden border border-[#1A2C46]/60">
+                          <div
+                            className={clsx(
+                              'h-full rounded-full transition-all duration-500',
+                              p.risk_level === 'Critical' ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                            )}
+                            style={{ width: `${p.flood_probability_percent}%` }}
+                          />
                         </div>
                       </div>
                     );
