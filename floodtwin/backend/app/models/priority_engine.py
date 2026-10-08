@@ -120,10 +120,18 @@ ZONE_CENTROIDS = [
 ]
 
 
+def assign_zone_info(lat: float, lon: float, idx: int = 1) -> Dict[str, str]:
+    """Map coordinates to the closest named response zone and return zone metadata."""
+    nearest_idx, nearest = min(enumerate(ZONE_CENTROIDS, start=1), key=lambda z: haversine_km(lat, lon, z[1]["lat"], z[1]["lon"]))
+    return {
+        "zone_id": f"ZONE-{nearest_idx:02d}",
+        "name": nearest["name"],
+    }
+
+
 def assign_zone_name(lat: float, lon: float, idx: int = 1) -> str:
     """Map coordinates to the closest named response zone in South Sulawesi."""
-    nearest = min(ZONE_CENTROIDS, key=lambda z: haversine_km(lat, lon, z["lat"], z["lon"]))
-    return nearest["name"]
+    return assign_zone_info(lat, lon, idx)["name"]
 
 
 def get_response_zones(cells: List[Dict[str, Any]], top_n: int = 10) -> List[Dict[str, Any]]:
@@ -138,7 +146,7 @@ def get_response_zones(cells: List[Dict[str, Any]], top_n: int = 10) -> List[Dic
     # Cluster sectors into zones based on proximity
     zone_dict = {}
     for p in multi_priorities:
-        zone_name = assign_zone_name(p["lat"], p["lon"], idx=len(zone_dict)+1)
+        zone_name = p.get("residing_zone_name", assign_zone_name(p["lat"], p["lon"]))
         if zone_name not in zone_dict:
             zone_dict[zone_name] = []
         zone_dict[zone_name].append(p)
@@ -146,13 +154,17 @@ def get_response_zones(cells: List[Dict[str, Any]], top_n: int = 10) -> List[Dic
     zone_list = []
     for z_name, z_sectors in zone_dict.items():
         z_count = len(z_sectors)
+        z_id = z_sectors[0].get("residing_zone_id", "ZONE-01")
         avg_priority = float(np.mean([s["priority_score"] for s in z_sectors]))
         max_priority = float(np.max([s["priority_score"] for s in z_sectors]))
         peak_prob = float(np.max([s["flood_probability"] for s in z_sectors]))
-        avg_exposure = float(np.mean([s["factor_breakdown"]["exposure"]["score"] for s in z_sectors]))
-        avg_access = float(np.mean([s["factor_breakdown"]["accessibility"]["score"] for s in z_sectors]))
-        avg_crit = float(np.mean([s["factor_breakdown"]["criticality"]["score"] for s in z_sectors]))
+        
+        # Safely extract scores handling dict structure
+        avg_exposure = float(np.mean([s["factor_breakdown"]["exposure"]["score"] if isinstance(s["factor_breakdown"]["exposure"], dict) else s["factor_breakdown"]["exposure"] for s in z_sectors]))
+        avg_access = float(np.mean([s["factor_breakdown"]["accessibility"]["score"] if isinstance(s["factor_breakdown"]["accessibility"], dict) else s["factor_breakdown"]["accessibility"] for s in z_sectors]))
+        avg_crit = float(np.mean([s["factor_breakdown"]["criticality"]["score"] if isinstance(s["factor_breakdown"]["criticality"], dict) else s["factor_breakdown"]["criticality"] for s in z_sectors]))
         avg_delta = int(round(np.mean([s["rank_delta"] for s in z_sectors])))
+        nearest_hub = z_sectors[0].get("nearest_critical_hub", {}).get("name", "Regional Medical Center")
 
         lats = [s["lat"] for s in z_sectors]
         lons = [s["lon"] for s in z_sectors]
@@ -162,33 +174,63 @@ def get_response_zones(cells: List[Dict[str, Any]], top_n: int = 10) -> List[Dic
         # Key Reason Synthesis
         reasons = []
         if avg_crit >= 0.55:
-            reasons.append("Hospital & Emergency Lifeline Threatened")
+            reasons.append(f"Critical Medical/Logistics Lifeline Threat ({nearest_hub})")
         if avg_access >= 0.50:
-            reasons.append(f"{int(avg_access*100)}% Cut-off Access Risk")
+            reasons.append(f"Severe Isolation ({int(avg_access*100)}% Road Cut-Off Risk within 2km)")
         if avg_exposure >= 0.65:
-            reasons.append("High Urban/Cropland Asset Density")
+            reasons.append("High Urban & Agricultural Asset Density at Risk")
         if not reasons:
-            reasons.append(f"Peak Inundation {int(peak_prob*100)}% with low elevation")
+            reasons.append(f"Peak Inundation {int(peak_prob*100)}% in Low-Lying Coastal Valley")
 
         reason_str = " • ".join(reasons)
+        if avg_delta != 0:
+            reason_str += f" (Shifted {avg_delta:+} spots vs raw hazard rank)"
 
         zone_list.append({
-            "zone_id": f"ZONE-{len(zone_list)+1:02d}",
+            "zone_id": z_id,
             "name": z_name,
             "sector_count": z_count,
             "priority_score": round(max_priority, 4),
             "priority_percent": round(max_priority * 100, 1),
             "peak_probability_percent": round(peak_prob * 100, 1),
             "rank_delta": avg_delta,
-            "rank_delta_label": f"▲ +{avg_delta} vs prob" if avg_delta > 0 else (f"▼ -{abs(avg_delta)} vs prob" if avg_delta < 0 else "= Same"),
+            "rank_delta_label": f"▲ +{avg_delta} vs raw risk" if avg_delta > 0 else (f"▼ -{abs(avg_delta)} vs raw risk" if avg_delta < 0 else "= Same as raw risk"),
             "reason": reason_str,
             "centroid": centroid,
             "bbox": bbox,
             "factor_breakdown": {
-                "probability": round(peak_prob * 0.40 / max_priority * 100, 1) if max_priority > 0 else 25.0,
-                "exposure": round(avg_exposure * 0.25 / max_priority * 100, 1) if max_priority > 0 else 25.0,
-                "accessibility": round(avg_access * 0.20 / max_priority * 100, 1) if max_priority > 0 else 25.0,
-                "criticality": round(avg_crit * 0.15 / max_priority * 100, 1) if max_priority > 0 else 25.0,
+                "probability": {
+                    "score": round(peak_prob, 3),
+                    "weight": 0.40,
+                    "pct_of_total": round(peak_prob * 0.40 / max_priority * 100, 1) if max_priority > 0 else 25.0,
+                    "name": "Inundation Risk",
+                    "label": "XGBoost Hazard Probability",
+                    "description": "Predicted surface water hazard from terrain topography & rainfall forcing",
+                },
+                "exposure": {
+                    "score": round(avg_exposure, 3),
+                    "weight": 0.25,
+                    "pct_of_total": round(avg_exposure * 0.25 / max_priority * 100, 1) if max_priority > 0 else 25.0,
+                    "name": "Asset Exposure",
+                    "label": "Population & Crop Land Density",
+                    "description": "Vulnerability of built-up urban structures, residential settlements, and cropland",
+                },
+                "accessibility": {
+                    "score": round(avg_access, 3),
+                    "weight": 0.20,
+                    "pct_of_total": round(avg_access * 0.20 / max_priority * 100, 1) if max_priority > 0 else 25.0,
+                    "name": "Road Isolation",
+                    "label": "Emergency Access Cut-Off",
+                    "description": "Percentage of surrounding sectors within 2km flooded, severing road access",
+                },
+                "criticality": {
+                    "score": round(avg_crit, 3),
+                    "weight": 0.15,
+                    "pct_of_total": round(avg_crit * 0.15 / max_priority * 100, 1) if max_priority > 0 else 25.0,
+                    "name": "Lifeline Threat",
+                    "label": "Hospital & Evacuation Base Proximity",
+                    "description": "Proximity threat to critical referral hospitals, trauma centers, and disaster hubs",
+                },
             },
             "top_sectors": [s["id"] for s in z_sectors[:6]],
         })

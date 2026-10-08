@@ -93,18 +93,33 @@ export default function PriorityPage() {
 
                   {/* Factor Breakdown Bar */}
                   <div className="col-span-3 pr-6">
-                    <div className="flex justify-between text-[10px] text-[#5C85C5] mb-1">
-                      <span>Prob</span>
-                      <span>Exp</span>
-                      <span>Acc</span>
-                      <span>Crit</span>
+                    <div className="flex justify-between text-[10px] font-semibold text-[#8A9EB8] mb-1 tracking-tight">
+                      <span className="text-sky-400" title="Inundation Risk (40% Weight): Machine learning forecast model prediction of surface water hazard from terrain topography & rainfall">Risk (40%)</span>
+                      <span className="text-amber-400" title="Asset Exposure (25% Weight): Land cover vulnerability assessing urban settlements and agricultural cropland at risk">Exposure (25%)</span>
+                      <span className="text-purple-400" title="Road Isolation (20% Weight): Access cut-off risk from surrounding flooded sectors within 2km radius">Isolation (20%)</span>
+                      <span className="text-rose-400" title="Lifeline Threat (15% Weight): Proximity threat to referral hospitals, trauma centers & disaster hubs">Lifeline (15%)</span>
                     </div>
-                    <div className="flex h-1.5 rounded-full overflow-hidden bg-[#1A2C46]">
-                      <div className="bg-sky-500" style={{ width: `${z.factor_breakdown.probability}%` }} title="Probability (40%)" />
-                      <div className="bg-orange-500" style={{ width: `${z.factor_breakdown.exposure}%` }} title="Exposure (25%)" />
-                      <div className="bg-purple-500" style={{ width: `${z.factor_breakdown.accessibility}%` }} title="Accessibility (20%)" />
-                      <div className="bg-red-500" style={{ width: `${z.factor_breakdown.criticality}%` }} title="Criticality (15%)" />
-                    </div>
+                    {(() => {
+                      const fb = z.factor_breakdown || {};
+                      const probPct = typeof fb.probability === 'object' ? fb.probability.pct_of_total : (fb.probability || 25);
+                      const expPct = typeof fb.exposure === 'object' ? fb.exposure.pct_of_total : (fb.exposure || 25);
+                      const accPct = typeof fb.accessibility === 'object' ? fb.accessibility.pct_of_total : (fb.accessibility || 25);
+                      const critPct = typeof fb.criticality === 'object' ? fb.criticality.pct_of_total : (fb.criticality || 25);
+
+                      const probDesc = typeof fb.probability === 'object' ? fb.probability.description : "Inundation Risk (40%): XGBoost hazard forecast";
+                      const expDesc = typeof fb.exposure === 'object' ? fb.exposure.description : "Asset Exposure (25%): Populated & agricultural land density";
+                      const accDesc = typeof fb.accessibility === 'object' ? fb.accessibility.description : "Road Isolation (20%): 2km emergency access cut-off risk";
+                      const critDesc = typeof fb.criticality === 'object' ? fb.criticality.description : "Lifeline Threat (15%): Proximity to regional hospitals & evac bases";
+
+                      return (
+                        <div className="flex h-2.5 rounded-full overflow-hidden bg-[#1A2C46] gap-0.5 p-0.5">
+                          <div className="bg-sky-500 rounded-l" style={{ width: `${probPct}%` }} title={probDesc} />
+                          <div className="bg-amber-500" style={{ width: `${expPct}%` }} title={expDesc} />
+                          <div className="bg-purple-500" style={{ width: `${accPct}%` }} title={accDesc} />
+                          <div className="bg-rose-500 rounded-r" style={{ width: `${critPct}%` }} title={critDesc} />
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Reason */}

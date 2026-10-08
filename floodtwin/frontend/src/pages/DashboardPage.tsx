@@ -326,6 +326,8 @@ export default function DashboardPage() {
     };
   }, [selectedCell]);
 
+
+
   // Map interaction
   const onMouseMove = useCallback((e: MapLayerMouseEvent) => {
     const features = e.features;
@@ -973,6 +975,10 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <h3 className="text-sm font-bold text-white">{selectedCell.location_name}</h3>
+                  <div className="flex items-center gap-1.5 text-xs text-purple-300 font-semibold bg-purple-500/15 border border-purple-500/30 px-2.5 py-1 rounded-lg w-fit">
+                    <Compass size={13} className="text-purple-400" />
+                    <span>Zone: {selectedCell.residing_zone_name || 'Maros Coastal Defense Zone'} ({selectedCell.residing_zone_id || 'ZONE-01'})</span>
+                  </div>
                   <div className="text-xs text-[#8A9EB8] flex items-center gap-1.5">
                     <Clock size={13} className="text-cyan-400" />
                     Event Date: <span className="text-white font-mono">{selectedCell.event_id ?? 'Historical Set'}</span>
