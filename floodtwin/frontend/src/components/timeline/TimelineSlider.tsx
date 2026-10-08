@@ -256,7 +256,57 @@ export default function TimelineSlider({
         </div>
 
         {/* Continuous Interactive Scrubber Slider */}
-        <div className="relative flex items-center pt-1">
+        <div className="relative flex items-center pt-1 pb-0.5">
+          <style>{`
+            .timeline-range::-webkit-slider-thumb {
+              -webkit-appearance: none;
+              appearance: none;
+              width: 18px;
+              height: 18px;
+              border-radius: 50%;
+              background: #3b82f6;
+              box-shadow: 0 0 0 3px rgba(59,130,246,0.25), 0 0 10px rgba(59,130,246,0.5);
+              border: 2px solid #93c5fd;
+              cursor: pointer;
+              transition: box-shadow 0.15s, transform 0.15s;
+            }
+            .timeline-range::-webkit-slider-thumb:hover {
+              box-shadow: 0 0 0 5px rgba(59,130,246,0.35), 0 0 16px rgba(59,130,246,0.6);
+              transform: scale(1.15);
+            }
+            .timeline-range::-moz-range-thumb {
+              width: 18px;
+              height: 18px;
+              border-radius: 50%;
+              background: #3b82f6;
+              box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+              border: 2px solid #93c5fd;
+              cursor: pointer;
+            }
+            .timeline-range::-webkit-slider-runnable-track {
+              height: 6px;
+              border-radius: 999px;
+              background: linear-gradient(
+                to right,
+                #3b82f6 0%,
+                #3b82f6 var(--pct, 0%),
+                #1A2C46 var(--pct, 0%),
+                #1A2C46 100%
+              );
+              border: 1px solid #243554;
+            }
+            .timeline-range::-moz-range-track {
+              height: 6px;
+              border-radius: 999px;
+              background: #1A2C46;
+              border: 1px solid #243554;
+            }
+            .timeline-range::-moz-range-progress {
+              height: 6px;
+              border-radius: 999px;
+              background: #3b82f6;
+            }
+          `}</style>
           <input
             type="range"
             min="0"
@@ -267,7 +317,10 @@ export default function TimelineSlider({
               const idx = Number(e.target.value);
               onStepChange(idx, TIMELINE_STEPS[idx]);
             }}
-            className="w-full h-2 bg-[#0D1B2E] rounded-lg appearance-none cursor-pointer accent-blue-500 border border-[#1A2C46]"
+            className="timeline-range w-full appearance-none cursor-pointer bg-transparent"
+            style={{
+              '--pct': `${(currentStepIndex / (TIMELINE_STEPS.length - 1)) * 100}%`,
+            } as React.CSSProperties}
           />
         </div>
       </div>

@@ -7,3 +7,35 @@
     @apply bg-background text-text-primary;
   }
 }
+
+/* ─── Custom scrollbar — dark navy theme ──────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080F1E;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E3A5F;
+  border-radius: 999px;
+  border: 1px solid #0A1628;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+::-webkit-scrollbar-corner {
+  background: #080F1E;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1E3A5F #080F1E;
+}

@@ -465,46 +465,47 @@ export default function DashboardPage() {
                 }}
               />
             </Source>
+
+            {/* Hover Tooltip — placed INSIDE Map so it renders in fullscreen too */}
+            {hoverInfo && (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: Math.min(hoverInfo.x + 12, window.innerWidth - 280),
+                  top: Math.max(hoverInfo.y - 120, 10),
+                  pointerEvents: 'none',
+                  zIndex: 40,
+                }}
+                className="bg-[#080F1E]/95 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3 text-white shadow-2xl w-64 text-xs space-y-1.5"
+              >
+                <div className="flex items-center justify-between border-b border-[#1A2C46] pb-1.5">
+                  <span className="font-bold text-white font-mono">{hoverInfo.cell.id}</span>
+                  <span
+                    className="px-2 py-0.5 rounded-full text-[10px] font-bold"
+                    style={{
+                      backgroundColor: RISK_COLORS[hoverInfo.cell.risk_level] + '25',
+                      color: RISK_COLORS[hoverInfo.cell.risk_level],
+                      border: `1px solid ${RISK_COLORS[hoverInfo.cell.risk_level]}60`,
+                    }}
+                  >
+                    {hoverInfo.cell.risk_level} • {hoverInfo.cell.flood_probability_percent}%
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-[11px] text-[#8A9EB8]">
+                  <div>Lat: <span className="text-white font-mono">{hoverInfo.cell.lat.toFixed(3)}°</span></div>
+                  <div>Lon: <span className="text-white font-mono">{hoverInfo.cell.lon.toFixed(3)}°</span></div>
+                  <div>Elevation: <span className="text-white font-bold">{hoverInfo.cell.elevation} m</span></div>
+                  <div>3d Rain: <span className="text-cyan-400 font-bold">{hoverInfo.cell.precip_3d.toFixed(1)} mm</span></div>
+                  <div>Slope: <span className="text-white">{hoverInfo.cell.slope.toFixed(1)}°</span></div>
+                  <div>TWI: <span className="text-white font-mono">{hoverInfo.cell.TWI.toFixed(1)}</span></div>
+                </div>
+                <div className="text-[10px] text-blue-400 italic pt-1 border-t border-[#1A2C46]">
+                  Click to inspect local SHAP &amp; features
+                </div>
+              </div>
+            )}
           </Map>
 
-          {/* Hover Tooltip */}
-          {hoverInfo && (
-            <div
-              style={{
-                position: 'absolute',
-                left: Math.min(hoverInfo.x + 12, window.innerWidth - 650),
-                top: Math.max(hoverInfo.y - 120, 10),
-                pointerEvents: 'none',
-                zIndex: 40,
-              }}
-              className="bg-[#080F1E]/95 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3 text-white shadow-2xl w-64 text-xs space-y-1.5"
-            >
-              <div className="flex items-center justify-between border-b border-[#1A2C46] pb-1.5">
-                <span className="font-bold text-white font-mono">{hoverInfo.cell.id}</span>
-                <span
-                  className="px-2 py-0.5 rounded-full text-[10px] font-bold"
-                  style={{
-                    backgroundColor: RISK_COLORS[hoverInfo.cell.risk_level] + '25',
-                    color: RISK_COLORS[hoverInfo.cell.risk_level],
-                    border: `1px solid ${RISK_COLORS[hoverInfo.cell.risk_level]}60`,
-                  }}
-                >
-                  {hoverInfo.cell.risk_level} • {hoverInfo.cell.flood_probability_percent}%
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-1 text-[11px] text-[#8A9EB8]">
-                <div>Lat: <span className="text-white font-mono">{hoverInfo.cell.lat.toFixed(3)}°</span></div>
-                <div>Lon: <span className="text-white font-mono">{hoverInfo.cell.lon.toFixed(3)}°</span></div>
-                <div>Elevation: <span className="text-white font-bold">{hoverInfo.cell.elevation} m</span></div>
-                <div>3d Rain: <span className="text-cyan-400 font-bold">{hoverInfo.cell.precip_3d.toFixed(1)} mm</span></div>
-                <div>Slope: <span className="text-white">{hoverInfo.cell.slope.toFixed(1)}°</span></div>
-                <div>TWI: <span className="text-white font-mono">{hoverInfo.cell.TWI.toFixed(1)}</span></div>
-              </div>
-              <div className="text-[10px] text-blue-400 italic pt-1 border-t border-[#1A2C46]">
-                Click to inspect local SHAP & features
-              </div>
-            </div>
-          )}
 
           {/* Map Legend */}
           <div className="absolute bottom-4 left-4 bg-[#081220]/90 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3 shadow-2xl text-white w-60">
