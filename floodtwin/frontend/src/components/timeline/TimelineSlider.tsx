@@ -179,27 +179,20 @@ export default function TimelineSlider({
   };
 
   return (
-    <div className="bg-[#081220]/95 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3 shadow-2xl space-y-2.5">
+    <div className="bg-[#081220]/95 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3 shadow-2xl space-y-2">
       {/* Top Header: Timeline Title & Key Forecast Indicators */}
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
             <Clock size={16} />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white tracking-wide">
-                4D Hydrological Forecast Timeline
-              </span>
-              <span className={clsx('text-[10px] font-bold px-2 py-0.5 rounded-full border', SEVERITY_BADGE[currentStep.severity])}>
-                {currentStep.severity.toUpperCase()} HAZARD
-              </span>
-            </div>
-            <div className="text-[10px] text-[#8A9EB8] flex items-center gap-2">
-              <span>Timestamp: <strong className="text-white font-mono">{currentStep.timeDisplay}</strong></span>
-              <span>•</span>
-              <span className="text-cyan-400">{currentStep.weatherSummary}</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-white tracking-wide">
+              Forecast Timeline
+            </span>
+            <span className={clsx('text-[10px] font-bold px-2 py-0.5 rounded-full border', SEVERITY_BADGE[currentStep.severity])}>
+              {currentStep.severity.toUpperCase()} HAZARD
+            </span>
           </div>
         </div>
 
@@ -214,7 +207,7 @@ export default function TimelineSlider({
           <div className="bg-[#0D1B2E] border border-[#1A2C46] px-2.5 py-1 rounded-lg flex items-center gap-1.5">
             <Waves size={13} className="text-blue-400" />
             <span className="text-[10px] text-[#8A9EB8]">Tide:</span>
-            <span className="font-mono font-bold text-white">{currentStep.tideLevel}m <span className="text-[10px] text-cyan-400">(+{currentStep.surgeHeight}m)</span></span>
+            <span className="font-mono font-bold text-white">{currentStep.tideLevel}m</span>
           </div>
 
           <div className="bg-[#0D1B2E] border border-[#1A2C46] px-2.5 py-1 rounded-lg flex items-center gap-1.5">

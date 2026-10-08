@@ -45,8 +45,8 @@ export default function BriefingCard({
           category: 'evacuation',
           severity: isPeak ? 'CRITICAL' : 'HIGH',
           icon: LifeBuoy,
-          title: 'Targeted Low-Elevation Evacuation Polygons',
-          action: `Deploy evacuation buses & NDRF/SDRF teams to sectors with elevation < 15m and TWI > 8.0. Stage high-ground relief camps at locations > 25m DEM. Priority transfer for dialysis & bedridden patients.`,
+          title: 'Targeted Evacuation Polygons',
+          action: 'Deploy evacuation buses to sectors <15m elevation. Stage relief camps on high ground >25m.',
           status: isPeak ? 'IMMEDIATE DISPATCH' : 'PRE-STAGE',
         },
         {
@@ -54,12 +54,12 @@ export default function BriefingCard({
           category: 'hydraulic',
           severity: 'HIGH',
           icon: Droplets,
-          title: 'Tidal Sluice Gate & Dewatering Pump Operation',
+          title: 'Sluice Gates & Dewatering Pumps',
           action: isPreStorm
-            ? 'Open coastal tidal barrages and gravity outfall gates immediately to maximize urban drainage discharge before the 3.6m Spring High Tide crest.'
+            ? 'Open tidal sluice barrages now to maximize drainage before high tide.'
             : isPeak
-            ? 'Close sea-facing tidal barrages to prevent seawater backflow into municipal river estuaries. Run 500 m³/hr mobile diesel dewatering pumps at critical underpasses.'
-            : 'Re-open sluice gates as sea tide recedes below 2.4m to evacuate pooled catchment runoff towards Makassar Strait.',
+            ? 'Close sea barrages against backflow; activate 500 m³/h diesel dewatering pumps.'
+            : 'Re-open sluices as sea tide drops below 2.4m to evacuate pooled runoff.',
           status: 'MANDATORY PROTOCOL',
         },
         {
@@ -67,8 +67,8 @@ export default function BriefingCard({
           category: 'power',
           severity: 'CRITICAL',
           icon: ZapOff,
-          title: 'Substation De-energization & Elevated Backup Power',
-          action: `Remotely isolate distribution transformers and de-energize 11kV/33kV feeder lines in sectors with > 50% flood probability to prevent fatal electrocutions. Ensure government hospital ICU generators are fueled on elevated platforms.`,
+          title: 'Substation De-energization',
+          action: 'De-energize 11kV/33kV power feeders in >50% hazard sectors; verify hospital ICU generator fuel.',
           status: isPeak ? 'EXECUTE NOW' : 'STANDBY LOCKOUT',
         },
         {
@@ -76,8 +76,8 @@ export default function BriefingCard({
           category: 'health',
           severity: 'HIGH',
           icon: Stethoscope,
-          title: 'Potable Water Distribution & Leptospirosis Prophylaxis',
-          action: `Issue immediate municipal Boil-Water Advisory. Distribute Halazone / NaDCC chlorine purification tablets. Pre-position anti-venom (for displaced snakes in flooded brush) and Doxycycline capsules against floodwater-borne Leptospirosis.`,
+          title: 'Potable Water & Medical Stockpile',
+          action: 'Issue municipal Boil-Water advisory, distribute chlorine tablets, and pre-position anti-venom & doxycycline.',
           status: 'STOCKPILE & DISPATCH',
         },
         {
@@ -85,8 +85,8 @@ export default function BriefingCard({
           category: 'evacuation',
           severity: 'MODERATE',
           icon: Truck,
-          title: 'Barricade Inundated Coastal Highways & Underpasses',
-          action: `Erect hard barricades with emergency flashers on coastal trunk roads and low-lying river overpasses. Broadcast alternative high-elevation relief transit routes.`,
+          title: 'Barricade Inundated Trunk Roads',
+          action: 'Erect barricades on coastal highways and direct traffic to elevated detour routes.',
           status: 'TRAFFIC CONTROL',
         },
       ];
@@ -98,10 +98,10 @@ export default function BriefingCard({
           category: 'evacuation',
           severity: 'CRITICAL',
           icon: LifeBuoy,
-          title: 'Move to First Floor / Designated Shelter',
+          title: 'Move to High Ground / Shelter',
           action: isPeak
-            ? 'WATER LEVEL RISING: Immediately move to upper floors or evacuation centers. Take "Go-Bag" (documents in waterproof pouch, 3 days of water, medication, flashlight, power bank).'
-            : 'Locate your nearest high-ground community shelter (>20m elevation). Charge all mobile devices and store 5 liters of drinking water per person.',
+            ? 'Move to upper floors or nearest shelter immediately with your Go-Bag (documents, medication, flashlight).'
+            : 'Locate nearest high-ground shelter (>20m). Charge devices and store 5L drinking water per person.',
           status: 'LIFE SAFETY',
         },
         {
@@ -109,8 +109,8 @@ export default function BriefingCard({
           category: 'power',
           severity: 'CRITICAL',
           icon: ZapOff,
-          title: 'Turn Off Main Electrical Breaker & Gas Valve',
-          action: 'If water begins entering your home, shut off the main electrical breaker box and LP gas cylinder valve before water reaches outlet sockets to prevent electrocution and fires.',
+          title: 'Shut Off Power Breaker & Gas',
+          action: 'Turn off the main electrical breaker and LP gas valve before water reaches outlet sockets.',
           status: 'HOME SAFETY',
         },
         {
@@ -118,8 +118,8 @@ export default function BriefingCard({
           category: 'hydraulic',
           severity: 'HIGH',
           icon: AlertTriangle,
-          title: 'Turn Around, Don’t Drown — Never Walk or Drive in Water',
-          action: 'Just 15 cm (6 inches) of moving water can knock down an adult; 30 cm can float and sweep away a car. Avoid walking through dark murky floodwaters concealing open manholes and live cables.',
+          title: 'Never Walk or Drive in Floodwater',
+          action: '15cm of moving water knocks down an adult; 30cm sweeps away a car. Avoid murky waters and live cables.',
           status: 'STRICT WARNING',
         },
         {
@@ -127,8 +127,8 @@ export default function BriefingCard({
           category: 'health',
           severity: 'HIGH',
           icon: Droplets,
-          title: 'Drink ONLY Boiled / Purified Water & Wear Boots',
-          action: 'Do not drink tap or well water which may be contaminated with sewage or chemical runoff. Wear sturdy boots to prevent wound infections and snake bites in submerged yards.',
+          title: 'Drink ONLY Boiled / Bottled Water',
+          action: 'Drink only boiled or bottled water and wear boots to avoid submerged wound infections and snake bites.',
           status: 'HEALTH ADVISORY',
         },
       ];

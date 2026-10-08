@@ -39,7 +39,6 @@ const mapStyle = {
       type: 'raster',
       tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
       tileSize: 256,
-      attribution: 'Esri Satellite & MODIS',
     },
   },
   layers: [{ id: 'esri-sat', type: 'raster', source: 'esri', minzoom: 0, maxzoom: 20 }],
@@ -280,6 +279,27 @@ export default function DashboardPage() {
     };
   }, [modulatedCells, selectedEvent, riskFilter]);
 
+  // Translucent Hover Sphere Spread GeoJSON
+  const hoverGeoJSON = useMemo(() => {
+    if (!hoverInfo?.cell) return null;
+    return {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: {
+            risk_level: hoverInfo.cell.risk_level,
+            color: RISK_COLORS[hoverInfo.cell.risk_level] || '#3b82f6',
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [hoverInfo.cell.lon, hoverInfo.cell.lat],
+          },
+        },
+      ],
+    };
+  }, [hoverInfo]);
+
   // Map interaction
   const onMouseMove = useCallback((e: MapLayerMouseEvent) => {
     const features = e.features;
@@ -339,7 +359,7 @@ export default function DashboardPage() {
       {/* ─── LEFT / CENTER: Map, Timeline & Bottom AI Command Center (Scrollable) ─── */}
       <div className="flex-1 flex flex-col gap-3 min-w-0 min-h-0 overflow-y-auto pr-1.5 pb-6">
         {/* Map Header Controls */}
-        <div className="bg-[#081220] border border-[#1A2C46] rounded-xl px-4 py-2 flex items-center justify-between gap-4 shrink-0 shadow-lg">
+        <div className="bg-[#081220] border border-[#1A2C46] rounded-xl px-4 py-2.5 flex items-center justify-between gap-4 shrink-0 shadow-lg">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
               <Compass size={18} />
@@ -349,16 +369,10 @@ export default function DashboardPage() {
                 <h1 className="text-sm font-bold text-white tracking-wide">
                   Sulawesi Spatial Prediction Grid
                 </h1>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30 font-mono">
-                  MODIS Satellite Ground-Truth
-                </span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">
                   Forecast: {activeTimelineStep.label}
                 </span>
               </div>
-              <p className="text-[11px] text-[#8A9EB8]">
-                {gridData?.total_cells ?? 0} Real Observation Points • BBox: 119.35°E–121.79°E, 6.50°S–1.89°S
-              </p>
             </div>
           </div>
 
@@ -411,23 +425,60 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Interactive Map Container */}
+        {/* Interactive Map Container — Locked Zoom to Bottom Right Controls */}
         <div className="min-h-[440px] h-[480px] bg-[#07101D] rounded-xl border border-[#1A2C46] relative overflow-hidden shadow-2xl shrink-0">
           <Map
             ref={mapRef}
             initialViewState={{
               longitude: 120.18,
-              latitude: -3.96,
-              zoom: 6.8,
+              latitude: -4.05,
+              zoom: 7.6,
             }}
             mapStyle={mapStyle as any}
+            attributionControl={false}
+            scrollZoom={false}
+            doubleClickZoom={false}
+            touchZoomRotate={false}
+            dragRotate={false}
+            boxZoom={false}
+            keyboard={false}
+            dragPan={true}
             interactiveLayerIds={['flood-points', 'flood-points-glow']}
             onMouseMove={onMouseMove}
             onMouseLeave={onMouseLeave}
             onClick={onMapClick}
           >
             <FullscreenControl position="top-right" />
-            <NavigationControl position="bottom-right" />
+            <NavigationControl position="bottom-right" showCompass={false} />
+
+            {/* Hovered Zone Translucent Spherical Ripple / Aura Spread */}
+            {hoverGeoJSON && (
+              <Source id="hover-sphere-source" type="geojson" data={hoverGeoJSON as any}>
+                <Layer
+                  id="hover-sphere-outer"
+                  type="circle"
+                  paint={{
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 22, 8, 38, 10, 60, 12, 85],
+                    'circle-color': ['get', 'color'],
+                    'circle-opacity': 0.35,
+                    'circle-blur': 0.45,
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': ['get', 'color'],
+                    'circle-stroke-opacity': 0.85,
+                  }}
+                />
+                <Layer
+                  id="hover-sphere-core"
+                  type="circle"
+                  paint={{
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 12, 8, 20, 10, 32, 12, 45],
+                    'circle-color': ['get', 'color'],
+                    'circle-opacity': 0.45,
+                    'circle-blur': 0.25,
+                  }}
+                />
+              </Source>
+            )}
 
             <Source id="sulawesi-points" type="geojson" data={geoJSON as any}>
               {/* Outer halo / glow layer */}
