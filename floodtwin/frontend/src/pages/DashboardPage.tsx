@@ -770,9 +770,9 @@ export default function DashboardPage() {
                 selectedCell={selectedCell}
               />
             ) : (
-              <div className="h-full flex flex-col justify-between p-1 space-y-3">
+              <div className="h-full flex flex-col p-1">
                 {/* Priority Locations Header */}
-                <div className="flex items-center justify-between pb-2.5 border-b border-[#1A2C46]">
+                <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-[#1A2C46]">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-red-500/15 border border-red-500/40 flex items-center justify-center text-red-400">
                       <Crosshair size={18} />
@@ -796,7 +796,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Priority Sectors Grid */}
-                <div className="grid grid-cols-2 gap-3 overflow-y-auto flex-1 pr-1 max-h-56">
+                <div className="grid grid-cols-2 gap-2.5 overflow-y-auto flex-1 pr-1">
                   {priorities.map(p => {
                     const isSelected = selectedCell?.id === p.id;
                     return (
