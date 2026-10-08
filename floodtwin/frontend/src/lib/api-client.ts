@@ -282,6 +282,32 @@ export async function fetchModelMetrics(): Promise<ModelMetricsResponse> {
   return response.json();
 }
 
+export async function dispatchAlert(message: string): Promise<{ message: string; errors: string[] }> {
+  const response = await fetch(`${API_BASE_URL}/alerts/dispatch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message }),
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Dispatch error (${response.status}): ${err}`);
+  }
+  return response.json();
+}
+
+export async function dispatchIncidentAlert(incident: AlertIncident): Promise<{ message: string; errors: string[], dispatched_text: string }> {
+  const response = await fetch(`${API_BASE_URL}/alerts/dispatch-incident`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ incident }),
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Dispatch error (${response.status}): ${err}`);
+  }
+  return response.json();
+}
+
 /**
  * Robust, physically-sound hydrological simulation function:
  * Strictly enforces positive monotonic scaling with precipitation surge
