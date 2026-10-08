@@ -8,11 +8,11 @@ import {
 } from 'lucide-react';
 import Map, { Source, Layer, NavigationControl, FullscreenControl, MapLayerMouseEvent } from 'react-map-gl/maplibre';
 import {
-  checkApiHealth, fetchGrid, fetchPriorities, fetchPriorityZones, explainFlood, simulateScenario,
+  checkApiHealth, fetchGrid, fetchPriorities, explainFlood, simulateScenario,
   computePhysicalHydrologicalSimulation, fetchModelMetrics
 } from '../lib/api-client';
 import type {
-  GridCell, GridResponse, PriorityArea, ResponseZone, LocalShapResponse, ModelMetricsResponse
+  GridCell, GridResponse, PriorityArea, LocalShapResponse, ModelMetricsResponse
 } from '../lib/api-client';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import clsx from 'clsx';
@@ -54,8 +54,6 @@ interface HoverInfo {
 export default function DashboardPage() {
   const [gridData, setGridData] = useState<GridResponse | null>(null);
   const [priorities, setPriorities] = useState<PriorityArea[]>([]);
-  const [responseZones, setResponseZones] = useState<ResponseZone[]>([]);
-  const [showZones, setShowZones] = useState<boolean>(true);
   const [metrics, setMetrics] = useState<ModelMetricsResponse | null>(null);
   const [selectedCell, setSelectedCell] = useState<GridCell | null>(null);
   const [shapData, setShapData] = useState<LocalShapResponse | null>(null);
@@ -107,7 +105,6 @@ export default function DashboardPage() {
       .catch(console.error);
 
     fetchPriorities(10).then(setPriorities).catch(console.error);
-    fetchPriorityZones(15).then(setResponseZones).catch(console.error);
     fetchModelMetrics().then(setMetrics).catch(console.error);
 
     const interval = setInterval(() => {
@@ -329,54 +326,7 @@ export default function DashboardPage() {
     };
   }, [selectedCell]);
 
-  // Response Zones Polygon & Centroid GeoJSON for Map Overlay Option
-  const zonesGeoJSON = useMemo(() => {
-    if (!showZones || !responseZones.length) return null;
-    return {
-      type: 'FeatureCollection',
-      features: responseZones.map(z => ({
-        type: 'Feature',
-        properties: {
-          zone_id: z.zone_id,
-          name: z.name,
-          sector_count: z.sector_count,
-          priority_percent: z.priority_percent,
-          reason: z.reason,
-        },
-        geometry: {
-          type: 'Polygon',
-          coordinates: [[
-            [z.bbox[0], z.bbox[1]],
-            [z.bbox[2], z.bbox[1]],
-            [z.bbox[2], z.bbox[3]],
-            [z.bbox[0], z.bbox[3]],
-            [z.bbox[0], z.bbox[1]],
-          ]],
-        },
-      })),
-    };
-  }, [showZones, responseZones]);
 
-  const zoneCentroidsGeoJSON = useMemo(() => {
-    if (!showZones || !responseZones.length) return null;
-    return {
-      type: 'FeatureCollection',
-      features: responseZones.map(z => ({
-        type: 'Feature',
-        properties: {
-          zone_id: z.zone_id,
-          name: z.name,
-          sector_count: z.sector_count,
-          priority_percent: z.priority_percent,
-          reason: z.reason,
-        },
-        geometry: {
-          type: 'Point',
-          coordinates: [z.centroid[0], z.centroid[1]],
-        },
-      })),
-    };
-  }, [showZones, responseZones]);
 
   // Map interaction
   const onMouseMove = useCallback((e: MapLayerMouseEvent) => {
@@ -454,21 +404,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Filters, Response Zone Toggle & Event selector */}
+          {/* Filters & Event selector */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowZones(!showZones)}
-              className={clsx(
-                'px-3 py-1.5 rounded-lg text-xs font-bold border transition flex items-center gap-1.5 select-none shadow-sm',
-                showZones
-                  ? 'bg-purple-600/30 text-purple-300 border-purple-500/50 ring-1 ring-purple-500/40 shadow-[0_0_12px_rgba(168,85,247,0.3)]'
-                  : 'bg-[#0D1B2E] text-[#8A9EB8] border-[#1A2C46] hover:text-white hover:bg-[#132742]'
-              )}
-            >
-              <Layers size={13} className={showZones ? 'text-purple-300' : 'text-[#8A9EB8]'} />
-              <span>Display Response Zones ({responseZones.length})</span>
-            </button>
-
             <div className="flex items-center gap-1.5 text-xs text-[#8A9EB8]">
               <Filter size={13} className="text-blue-400" />
               <span>Risk:</span>
@@ -541,48 +478,6 @@ export default function DashboardPage() {
           >
             <FullscreenControl position="top-right" />
             <NavigationControl position="bottom-right" showCompass={false} />
-
-            {/* Response Zone Boundaries & Bounding Box Fill Layer */}
-            {zonesGeoJSON && (
-              <Source id="response-zones-source" type="geojson" data={zonesGeoJSON as any}>
-                <Layer
-                  id="zones-fill"
-                  type="fill"
-                  paint={{
-                    'fill-color': '#a855f7',
-                    'fill-opacity': 0.10,
-                  }}
-                />
-                <Layer
-                  id="zones-line"
-                  type="line"
-                  paint={{
-                    'line-color': '#c084fc',
-                    'line-width': 1.8,
-                    'line-dasharray': [3, 2],
-                    'line-opacity': 0.85,
-                  }}
-                />
-              </Source>
-            )}
-
-            {/* Response Zone Centroid Marker Halo */}
-            {zoneCentroidsGeoJSON && (
-              <Source id="response-zones-centroid-source" type="geojson" data={zoneCentroidsGeoJSON as any}>
-                <Layer
-                  id="zones-centroid-halo"
-                  type="circle"
-                  paint={{
-                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 14, 8, 24, 10, 36],
-                    'circle-color': '#a855f7',
-                    'circle-opacity': 0.25,
-                    'circle-stroke-width': 2,
-                    'circle-stroke-color': '#e9d5ff',
-                    'circle-stroke-opacity': 0.9,
-                  }}
-                />
-              </Source>
-            )}
 
             {/* Selected Zone High-Visibility Target Beacon & Pulse Rings */}
             {selectedZoneGeoJSON && (
