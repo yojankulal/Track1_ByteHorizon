@@ -969,53 +969,48 @@ export default function DashboardPage() {
 
           {/* TAB 2: AI ADVISORY & LLM SHAP EXPLANATION */}
           {rightTab === 'shap' && (
-            <div className="space-y-4 animate-hero-transition">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Sparkles size={16} className="text-cyan-400 animate-pulse" />
-                    AI Flood Notice & Advisory
-                  </h3>
-                  <p className="text-xs text-[#8A9EB8]">
-                    Synthesized by Gemini LLM from XGBoost prediction & SHAP drivers
-                  </p>
-                </div>
-                {selectedCell && (
+            <div className="space-y-4">
+              {selectedCell && (
+                <div className="flex items-center justify-between pb-1 border-b border-[#1A2C46]/60">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/30">
-                      {selectedCell.id}
+                    <span className="font-mono text-xs text-blue-400 font-bold bg-blue-500/10 px-2.5 py-1 rounded border border-blue-500/30">
+                      Sector {selectedCell.id}
                     </span>
-                    <button
-                      onClick={() => {
-                        if (!selectedCell) return;
-                        setIsLoadingShap(true);
-                        explainFlood({
-                          lon: selectedCell.lon,
-                          lat: selectedCell.lat,
-                          precip_1d: selectedCell.precip_1d,
-                          precip_3d: selectedCell.precip_3d,
-                          landcover: selectedCell.landcover,
-                          elevation: selectedCell.elevation,
-                          slope: selectedCell.slope,
-                          TWI: selectedCell.TWI,
-                          upstream_area_log: selectedCell.upstream_area_log,
-                          aspect_sin: selectedCell.aspect_sin,
-                          aspect_cos: selectedCell.aspect_cos,
-                        })
-                          .then(data => {
-                            setShapData(data);
-                            setIsLoadingShap(false);
-                          })
-                          .catch(() => setIsLoadingShap(false));
-                      }}
-                      title="Regenerate Gemini Advisory"
-                      className="p-1.5 rounded-lg bg-[#0D1B2E] hover:bg-[#132742] border border-[#1A2C46] text-[#8A9EB8] hover:text-white transition"
-                    >
-                      <RefreshCw size={13} className={isLoadingShap ? 'animate-spin text-cyan-400' : ''} />
-                    </button>
+                    <span className="text-xs text-[#8A9EB8] font-mono">
+                      {selectedCell.lat.toFixed(3)}°, {selectedCell.lon.toFixed(3)}°
+                    </span>
                   </div>
-                )}
-              </div>
+                  <button
+                    onClick={() => {
+                      if (!selectedCell) return;
+                      setIsLoadingShap(true);
+                      explainFlood({
+                        lon: selectedCell.lon,
+                        lat: selectedCell.lat,
+                        precip_1d: selectedCell.precip_1d,
+                        precip_3d: selectedCell.precip_3d,
+                        landcover: selectedCell.landcover,
+                        elevation: selectedCell.elevation,
+                        slope: selectedCell.slope,
+                        TWI: selectedCell.TWI,
+                        upstream_area_log: selectedCell.upstream_area_log,
+                        aspect_sin: selectedCell.aspect_sin,
+                        aspect_cos: selectedCell.aspect_cos,
+                      })
+                        .then(data => {
+                          setShapData(data);
+                          setIsLoadingShap(false);
+                        })
+                        .catch(() => setIsLoadingShap(false));
+                    }}
+                    title="Regenerate Advisory"
+                    className="p-1.5 rounded-lg bg-[#0D1B2E] hover:bg-[#132742] border border-[#1A2C46] text-[#8A9EB8] hover:text-white transition flex items-center gap-1.5 text-xs"
+                  >
+                    <RefreshCw size={13} className={isLoadingShap ? 'animate-spin text-cyan-400' : ''} />
+                    <span>Refresh</span>
+                  </button>
+                </div>
+              )}
 
               {!selectedCell ? (
                 <div className="p-8 text-center text-[#8A9EB8] text-xs bg-[#0D1B2E] border border-[#1A2C46] rounded-xl space-y-3">
@@ -1035,20 +1030,20 @@ export default function DashboardPage() {
                 <div className="p-8 text-center text-[#8A9EB8] text-xs flex flex-col items-center gap-3 bg-[#0D1B2E] border border-[#1A2C46] rounded-xl">
                   <RefreshCw size={24} className="animate-spin text-cyan-400" />
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-white">Synthesizing Gemini LLM Advisory...</p>
+                    <p className="text-sm font-bold text-white">Synthesizing Advisory...</p>
                     <p className="text-xs text-[#8A9EB8]">Processing SHAP feature margins & hydrological metrics for {selectedCell.id}</p>
                   </div>
                 </div>
               ) : shapData ? (
                 <div className="space-y-3.5">
-                  {/* LLM Headline Alert Banner */}
+                  {/* Headline Alert Banner */}
                   <div className={clsx(
                     'p-4 rounded-xl border space-y-2 shadow-lg relative overflow-hidden',
                     RISK_BG_CLASSES[shapData.risk_level] || 'bg-blue-500/20 border-blue-500/40 text-blue-400'
                   )}>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded bg-black/50 border border-current font-mono">
-                        {shapData.llm_explanation?.model_used || 'Gemini LLM (Active)'}
+                        {shapData.risk_level.toUpperCase()} RISK
                       </span>
                       <span className="text-xs font-mono font-bold">
                         Risk Probability: {shapData.flood_probability_percent}%
