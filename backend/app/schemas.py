@@ -22,24 +22,6 @@ class FloodPredictionResponse(BaseModel):
     risk_level: str
 
 
-class WhatIfSimulationRequest(BaseModel):
-    baseline_features: FloodPredictionRequest
-    sim_precip_1d: float
-    sim_precip_3d: float
-    sim_elevation_adj: Optional[float] = 0.0
-
-
-class WhatIfSimulationResponse(BaseModel):
-    baseline_probability: float
-    baseline_probability_percent: float
-    baseline_risk_level: str
-    scenario_probability: float
-    scenario_probability_percent: float
-    scenario_risk_level: str
-    delta_percentage_points: float
-    explanation: str
-
-
 class LocalShapContribution(BaseModel):
     feature: str
     label: str

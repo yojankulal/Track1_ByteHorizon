@@ -177,64 +177,6 @@ def explain_flood_prediction(data: dict) -> dict:
     }
 
 
-def simulate_whatif_scenario(
-    baseline_data: dict,
-    sim_precip_1d: float,
-    sim_precip_3d: float,
-    sim_elevation_adj: float = 0.0,
-) -> dict:
-    """
-    Physically consistent hydrological scenario simulation:
-    Couples XGBoost baseline terrain susceptibility with precipitation surge dynamics.
-    Guarantees monotonic positive risk scaling under heavy rain and risk reduction under low rain.
-    """
-    base_prob = predict_flood_probability(baseline_data)
-    base_risk = get_risk_level(base_prob)
-
-    delta_1d = sim_precip_1d - baseline_data.get("precip_1d", 0.0)
-    delta_3d = sim_precip_3d - baseline_data.get("precip_3d", 0.0)
-    elev = max(1.0, baseline_data.get("elevation", 10.0) + sim_elevation_adj)
-    twi = baseline_data.get("TWI", 3.0)
-
-    # Topographic amplification: flat low-elevation valleys pool water faster
-    topo_multiplier = (1.0 + max(0.0, 20.0 - elev) / 20.0 * 0.8) * (1.0 + twi / 8.0 * 0.3)
-
-    # Precipitation forcing in logit space
-    rain_logit_shift = ((delta_3d / 25.0) * 0.95 + (delta_1d / 15.0) * 0.65) * topo_multiplier
-    elev_logit_shift = -(sim_elevation_adj / 10.0) * 0.85
-
-    total_shift = rain_logit_shift + elev_logit_shift
-
-    # Convert baseline probability to logit
-    p_clamped = max(0.005, min(0.995, base_prob))
-    base_logit = float(np.log(p_clamped / (1.0 - p_clamped)))
-
-    scenario_logit = base_logit + total_shift
-    scenario_prob = float(1.0 / (1.0 + np.exp(-scenario_logit)))
-    scenario_prob = max(0.01, min(0.995, scenario_prob))
-    scenario_risk = get_risk_level(scenario_prob)
-
-    delta_pp = round((scenario_prob - base_prob) * 100, 2)
-
-    if delta_pp > 0:
-        expl = f"Precipitation surge (+{max(0, delta_3d):.1f}mm 3-day) increased inundation probability by {delta_pp:+.1f} percentage points."
-    elif delta_pp < 0:
-        expl = f"Reduced precipitation/enhanced drainage decreased inundation probability by {abs(delta_pp):.1f} percentage points."
-    else:
-        expl = "Simulation parameters match baseline observation."
-
-    return {
-        "baseline_probability": round(base_prob, 4),
-        "baseline_probability_percent": round(base_prob * 100, 2),
-        "baseline_risk_level": base_risk,
-        "scenario_probability": round(scenario_prob, 4),
-        "scenario_probability_percent": round(scenario_prob * 100, 2),
-        "scenario_risk_level": scenario_risk,
-        "delta_percentage_points": delta_pp,
-        "explanation": expl,
-    }
-
-
 # ---------------------------------------------------------
 # Dataset & Grid Sampling
 # ---------------------------------------------------------

@@ -1,0 +1,12 @@
+feature,importance
+elevation,0.42084968
+landcover,0.22953324
+lon,0.06781334
+lat,0.06368807
+precip_3d,0.05902364
+precip_1d,0.044872057
+slope,0.04015419
+TWI,0.021689786
+upstream_area_log,0.018126216
+aspect_sin,0.017754382
+aspect_cos,0.01649544

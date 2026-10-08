@@ -1,0 +1,12 @@
+feature,mean_abs_shap
+elevation,2.0397437
+precip_3d,0.975437
+landcover,0.8946538
+lon,0.6760712
+lat,0.67196804
+slope,0.5128248
+precip_1d,0.35759047
+TWI,0.1504274
+aspect_sin,0.14002666
+aspect_cos,0.12546684
+upstream_area_log,0.10413091

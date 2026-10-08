@@ -4,8 +4,6 @@ from fastapi import APIRouter, Query, HTTPException
 from backend.app.schemas import (
     FloodPredictionRequest,
     FloodPredictionResponse,
-    WhatIfSimulationRequest,
-    WhatIfSimulationResponse,
     LocalShapResponse,
     GridResponse,
     PriorityArea,
@@ -14,7 +12,6 @@ from backend.app.schemas import (
 from backend.app.models.xgb_model import (
     predict_flood_probability,
     explain_flood_prediction,
-    simulate_whatif_scenario,
     generate_sulawesi_grid,
     get_priority_areas,
     get_model_metrics_summary,
@@ -56,25 +53,6 @@ def explain_flood(request: FloodPredictionRequest):
     Returns feature impacts (+/-) and percentage importance for the given location.
     """
     return explain_flood_prediction(request.model_dump())
-
-
-@router.post(
-    "/simulate",
-    response_model=WhatIfSimulationResponse,
-    summary="Simulate hydrological rainfall/topographic change scenario with physical coupling",
-)
-def simulate_scenario(request: WhatIfSimulationRequest):
-    """
-    Runs physical-hydrological scenario simulation:
-    Couples XGBoost baseline terrain susceptibility with precipitation surge dynamics.
-    Guarantees monotonic positive risk scaling under heavy rain and risk reduction under low rain.
-    """
-    return simulate_whatif_scenario(
-        baseline_data=request.baseline_features.model_dump(),
-        sim_precip_1d=request.sim_precip_1d,
-        sim_precip_3d=request.sim_precip_3d,
-        sim_elevation_adj=request.sim_elevation_adj or 0.0,
-    )
 
 
 @router.get(
