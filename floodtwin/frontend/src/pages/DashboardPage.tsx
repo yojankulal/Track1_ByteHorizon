@@ -7,7 +7,9 @@ import {
 import Map, { Source, Layer, NavigationControl, FullscreenControl, MapLayerMouseEvent } from 'react-map-gl/maplibre';
 import {
   checkApiHealth, fetchGrid, fetchPriorities, explainFlood, simulateScenario,
-  computePhysicalHydrologicalSimulation, fetchModelMetrics,
+  computePhysicalHydrologicalSimulation, fetchModelMetrics
+} from '../lib/api-client';
+import type {
   GridCell, GridResponse, PriorityArea, LocalShapResponse, ModelMetricsResponse
 } from '../lib/api-client';
 import 'maplibre-gl/dist/maplibre-gl.css';
