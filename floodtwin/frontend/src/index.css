@@ -2,40 +2,83 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Theme CSS variables ─────────────────────────────────────────────────── */
+:root {
+  /* Dark mode (default) */
+  --bg-page:      #040B14;
+  --bg-surface:   #081220;
+  --bg-card:      #0A1628;
+  --bg-input:     #0D1B2E;
+  --border:       #1A2C46;
+  --border-mid:   #243554;
+  --text-primary: #ffffff;
+  --text-muted:   #8A9EB8;
+  --text-dim:     #5C85C5;
+  --accent:       #3b82f6;
+  --scrollbar-track: #080F1E;
+  --scrollbar-thumb: #1E3A5F;
+}
+
+[data-theme="light"] {
+  --bg-page:      #EEF2F8;
+  --bg-surface:   #FFFFFF;
+  --bg-card:      #F4F7FB;
+  --bg-input:     #E8EFF8;
+  --border:       #C5D3E8;
+  --border-mid:   #A8BDD6;
+  --text-primary: #0A1628;
+  --text-muted:   #4A6080;
+  --text-dim:     #3A6090;
+  --accent:       #2563eb;
+  --scrollbar-track: #D8E4F0;
+  --scrollbar-thumb: #94AFCC;
+}
+
 @layer base {
   body {
-    @apply bg-background text-text-primary;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  [data-theme="light"] html,
+  html[data-theme="light"] {
+    color-scheme: light;
   }
 }
 
-/* ─── Custom scrollbar — dark navy theme ──────────────────────────────────── */
+/* ─── Custom scrollbar — adapts to theme ─────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #080F1E;
+  background: var(--scrollbar-track);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1E3A5F;
+  background: var(--scrollbar-thumb);
   border-radius: 999px;
-  border: 1px solid #0A1628;
+  border: 1px solid var(--bg-page);
   transition: background 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: var(--accent);
 }
 
 ::-webkit-scrollbar-corner {
-  background: #080F1E;
+  background: var(--scrollbar-track);
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #1E3A5F #080F1E;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
