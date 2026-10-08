@@ -179,49 +179,49 @@ export default function TimelineSlider({
   };
 
   return (
-    <div className="bg-[#081220]/95 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3 shadow-2xl space-y-2">
+    <div className="bg-[#081220]/95 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3.5 shadow-2xl space-y-2.5">
       {/* Top Header: Timeline Title & Key Forecast Indicators */}
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
-            <Clock size={16} />
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400">
+            <Clock size={18} />
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-white tracking-wide">
+          <div className="flex items-center gap-2.5">
+            <span className="text-sm font-bold text-white tracking-wide">
               Forecast Timeline
             </span>
-            <span className={clsx('text-[10px] font-bold px-2 py-0.5 rounded-full border', SEVERITY_BADGE[currentStep.severity])}>
+            <span className={clsx('text-xs font-bold px-2.5 py-0.5 rounded-full border', SEVERITY_BADGE[currentStep.severity])}>
               {currentStep.severity.toUpperCase()} HAZARD
             </span>
           </div>
         </div>
 
         {/* Live Forecast Telemetry Pills */}
-        <div className="flex items-center gap-2 text-xs">
-          <div className="bg-[#0D1B2E] border border-[#1A2C46] px-2.5 py-1 rounded-lg flex items-center gap-1.5">
-            <CloudRain size={13} className="text-cyan-400" />
-            <span className="text-[10px] text-[#8A9EB8]">Rain:</span>
-            <span className="font-mono font-bold text-white">{currentStep.rainRate} mm/h</span>
+        <div className="flex items-center gap-2.5 text-xs">
+          <div className="bg-[#0D1B2E] border border-[#1A2C46] px-3 py-1.5 rounded-lg flex items-center gap-2">
+            <CloudRain size={15} className="text-cyan-400" />
+            <span className="text-xs text-[#8A9EB8]">Rain:</span>
+            <span className="font-mono font-bold text-white text-xs">{currentStep.rainRate} mm/h</span>
           </div>
 
-          <div className="bg-[#0D1B2E] border border-[#1A2C46] px-2.5 py-1 rounded-lg flex items-center gap-1.5">
-            <Waves size={13} className="text-blue-400" />
-            <span className="text-[10px] text-[#8A9EB8]">Tide:</span>
-            <span className="font-mono font-bold text-white">{currentStep.tideLevel}m</span>
+          <div className="bg-[#0D1B2E] border border-[#1A2C46] px-3 py-1.5 rounded-lg flex items-center gap-2">
+            <Waves size={15} className="text-blue-400" />
+            <span className="text-xs text-[#8A9EB8]">Tide:</span>
+            <span className="font-mono font-bold text-white text-xs">{currentStep.tideLevel}m</span>
           </div>
 
-          <div className="bg-[#0D1B2E] border border-[#1A2C46] px-2.5 py-1 rounded-lg flex items-center gap-1.5">
-            <Wind size={13} className="text-orange-400" />
-            <span className="text-[10px] text-[#8A9EB8]">Cyclone:</span>
-            <span className="font-mono font-bold text-orange-400">{currentStep.cycloneDistanceKm} km W</span>
+          <div className="bg-[#0D1B2E] border border-[#1A2C46] px-3 py-1.5 rounded-lg flex items-center gap-2">
+            <Wind size={15} className="text-orange-400" />
+            <span className="text-xs text-[#8A9EB8]">Cyclone:</span>
+            <span className="font-mono font-bold text-orange-400 text-xs">{currentStep.cycloneDistanceKm} km W</span>
           </div>
         </div>
       </div>
 
       {/* Scrubber Track & Step Buttons */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {/* Step Buttons Row */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-1.5">
           {TIMELINE_STEPS.map((step, idx) => {
             const isCurrent = idx === currentStepIndex;
             const isPeak = step.id === 't-6';
@@ -230,17 +230,17 @@ export default function TimelineSlider({
                 key={step.id}
                 onClick={() => onStepChange(idx, step)}
                 className={clsx(
-                  'py-2 px-1 rounded-lg border text-center transition-all flex flex-col items-center justify-center relative',
+                  'py-2.5 px-1.5 rounded-lg border text-center transition-all flex flex-col items-center justify-center relative select-none',
                   isCurrent
                     ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_12px_rgba(59,130,246,0.5)] font-bold'
                     : isPeak
-                    ? 'bg-red-950/40 border-red-500/40 text-red-300 hover:bg-red-900/40'
-                    : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742]'
+                    ? 'bg-red-950/40 border-red-500/40 text-red-300 hover:bg-red-900/40 font-medium'
+                    : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742] font-medium'
                 )}
               >
-                <div className="text-[11px] font-mono font-medium leading-tight">{step.label}</div>
+                <div className="text-xs font-mono leading-tight">{step.label}</div>
                 {isPeak && !isCurrent && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
                 )}
               </button>
             );

@@ -619,51 +619,51 @@ export default function DashboardPage() {
 
 
           {/* Map Legend */}
-          <div className="absolute bottom-4 left-4 bg-[#081220]/90 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3 shadow-2xl text-white w-60">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold flex items-center gap-1.5">
-                <Layers size={13} className="text-blue-400" />
+          <div className="absolute bottom-4 left-4 bg-[#081220]/90 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3.5 shadow-2xl text-white w-64">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-bold flex items-center gap-2">
+                <Layers size={15} className="text-blue-400" />
                 Flood Probability Scale
               </span>
-              <span className="text-[10px] text-[#8A9EB8]">{activeTimelineStep.label}</span>
+              <span className="text-xs text-[#8A9EB8] font-mono">{activeTimelineStep.label}</span>
             </div>
-            <div className="space-y-1 text-[11px]">
+            <div className="space-y-1.5 text-xs">
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-emerald-400">
+                <span className="flex items-center gap-2 text-emerald-400 font-medium">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" /> Low Risk (&lt;20%)
                 </span>
-                <span className="font-mono text-[#8A9EB8]">{modulatedCells.filter(c => c.risk_level === 'Low').length}</span>
+                <span className="font-mono text-[#8A9EB8] text-xs">{modulatedCells.filter(c => c.risk_level === 'Low').length}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-amber-400">
+                <span className="flex items-center gap-2 text-amber-400 font-medium">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_6px_#f59e0b]" /> Moderate (20–50%)
                 </span>
-                <span className="font-mono text-[#8A9EB8]">{modulatedCells.filter(c => c.risk_level === 'Moderate').length}</span>
+                <span className="font-mono text-[#8A9EB8] text-xs">{modulatedCells.filter(c => c.risk_level === 'Moderate').length}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-orange-400">
+                <span className="flex items-center gap-2 text-orange-400 font-medium">
                   <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_6px_#f97316]" /> High Risk (50–75%)
                 </span>
-                <span className="font-mono text-[#8A9EB8]">{activeHighRiskCount}</span>
+                <span className="font-mono text-[#8A9EB8] text-xs">{activeHighRiskCount}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-red-400">
+                <span className="flex items-center gap-2 text-red-400 font-medium">
                   <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_6px_#ef4444]" /> Critical (&ge;75%)
                 </span>
-                <span className="font-mono text-[#8A9EB8]">{activeCriticalCount}</span>
+                <span className="font-mono text-[#8A9EB8] text-xs">{activeCriticalCount}</span>
               </div>
             </div>
           </div>
 
           {/* Quick Selected Highlight Badge on Map */}
           {selectedCell && (
-            <div className="absolute top-4 left-4 bg-[#081220]/95 backdrop-blur-md border border-blue-500/50 rounded-xl px-3.5 py-2 shadow-2xl flex items-center gap-3">
-              <div className="w-2.5 h-2.5 rounded-full animate-ping" style={{ backgroundColor: currentRiskColor }} />
+            <div className="absolute top-4 left-4 bg-[#081220]/95 backdrop-blur-md border border-blue-500/50 rounded-xl px-4 py-2.5 shadow-2xl flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full animate-ping" style={{ backgroundColor: currentRiskColor }} />
               <div>
-                <div className="text-[10px] text-[#8A9EB8]">Selected Focus:</div>
-                <div className="text-xs font-bold text-white">{selectedCell.location_name}</div>
+                <div className="text-xs text-[#8A9EB8]">Selected Focus:</div>
+                <div className="text-sm font-bold text-white">{selectedCell.location_name}</div>
               </div>
-              <span className={clsx('text-[10px] font-bold px-2 py-0.5 rounded-full border', RISK_BG_CLASSES[selectedCell.risk_level])}>
+              <span className={clsx('text-xs font-bold px-2.5 py-1 rounded-full border', RISK_BG_CLASSES[selectedCell.risk_level])}>
                 {selectedCell.risk_level} • {selectedCell.flood_probability_percent}%
               </span>
             </div>
@@ -671,27 +671,27 @@ export default function DashboardPage() {
         </div>
 
         {/* ─── BOTTOM PANEL: Side-Nav Switcher for Briefing vs Emergency Priorities (Full Width) ─── */}
-        <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-3 flex gap-3 min-h-[350px] shrink-0 shadow-xl">
+        <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-3.5 flex gap-3.5 min-h-[360px] shrink-0 shadow-xl">
           {/* Side Nav Rail */}
-          <div className="w-56 shrink-0 flex flex-col gap-2 border-r border-[#1A2C46]/60 pr-3">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-[#8A9EB8] px-1">
+          <div className="w-60 shrink-0 flex flex-col gap-2.5 border-r border-[#1A2C46]/60 pr-3.5">
+            <div className="text-xs font-bold uppercase tracking-wider text-[#8A9EB8] px-1">
               Operations Center
             </div>
 
             <button
               onClick={() => setBottomSection('briefing')}
               className={clsx(
-                'p-3 rounded-xl border text-left transition-all flex flex-col gap-1',
+                'p-3.5 rounded-xl border text-left transition-all flex flex-col gap-1.5',
                 bottomSection === 'briefing'
                   ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
                   : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742]'
               )}
             >
-              <div className="flex items-center gap-2 font-bold text-xs">
-                <Sparkles size={15} className={bottomSection === 'briefing' ? 'text-white' : 'text-blue-400'} />
+              <div className="flex items-center gap-2.5 font-bold text-sm">
+                <Sparkles size={16} className={bottomSection === 'briefing' ? 'text-white' : 'text-blue-400'} />
                 <span>Flood Mitigation Briefing</span>
               </div>
-              <span className={clsx('text-[10px]', bottomSection === 'briefing' ? 'text-blue-100' : 'text-[#5C85C5]')}>
+              <span className={clsx('text-xs', bottomSection === 'briefing' ? 'text-blue-100' : 'text-[#5C85C5]')}>
                 AI Protocols & Directives
               </span>
             </button>
@@ -699,22 +699,22 @@ export default function DashboardPage() {
             <button
               onClick={() => setBottomSection('priority')}
               className={clsx(
-                'p-3 rounded-xl border text-left transition-all flex flex-col gap-1 relative',
+                'p-3.5 rounded-xl border text-left transition-all flex flex-col gap-1.5 relative',
                 bottomSection === 'priority'
                   ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
                   : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742]'
               )}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 font-bold text-xs">
-                  <AlertTriangle size={15} className={bottomSection === 'priority' ? 'text-white' : 'text-red-400'} />
+                <div className="flex items-center gap-2.5 font-bold text-sm">
+                  <AlertTriangle size={16} className={bottomSection === 'priority' ? 'text-white' : 'text-red-400'} />
                   <span>Priority Locations</span>
                 </div>
-                <span className={clsx('text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold', bottomSection === 'priority' ? 'bg-white text-blue-700' : 'bg-red-500/20 text-red-400 border border-red-500/30')}>
+                <span className={clsx('text-xs font-mono px-2 py-0.5 rounded-full font-bold', bottomSection === 'priority' ? 'bg-white text-blue-700' : 'bg-red-500/20 text-red-400 border border-red-500/30')}>
                   {priorities.length}
                 </span>
               </div>
-              <span className={clsx('text-[10px]', bottomSection === 'priority' ? 'text-blue-100' : 'text-[#5C85C5]')}>
+              <span className={clsx('text-xs', bottomSection === 'priority' ? 'text-blue-100' : 'text-[#5C85C5]')}>
                 Ranked Emergency Watchlist
               </span>
             </button>
@@ -732,23 +732,23 @@ export default function DashboardPage() {
                 selectedCell={selectedCell}
               />
             ) : (
-              <div className="h-full flex flex-col justify-between p-1">
-                <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1A2C46]">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle size={16} className="text-red-400" />
+              <div className="h-full flex flex-col justify-between p-1.5">
+                <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#1A2C46]">
+                  <div className="flex items-center gap-2.5">
+                    <AlertTriangle size={18} className="text-red-400" />
                     <div>
-                      <h3 className="text-sm font-bold text-white">Emergency Priority Sectors</h3>
-                      <p className="text-[11px] text-[#8A9EB8]">
+                      <h3 className="text-base font-bold text-white">Emergency Priority Sectors</h3>
+                      <p className="text-xs text-[#8A9EB8]">
                         Click any priority sector to lock onto coordinates and highlight target zone on the map.
                       </p>
                     </div>
                   </div>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono font-bold">
+                  <span className="text-xs px-2.5 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/30 font-mono font-bold">
                     {activeCriticalCount} Critical Hazards Active
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2.5 overflow-y-auto flex-1 pr-1">
+                <div className="grid grid-cols-2 gap-3 overflow-y-auto flex-1 pr-1 max-h-60">
                   {priorities.map(p => {
                     const isSelected = selectedCell?.id === p.id;
                     return (
@@ -756,37 +756,37 @@ export default function DashboardPage() {
                         key={p.id}
                         onClick={() => selectPriority(p)}
                         className={clsx(
-                          'p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between text-xs select-none',
+                          'p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between select-none',
                           isSelected
                             ? 'bg-blue-600/30 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)] ring-1 ring-blue-400'
                             : 'bg-[#0D1B2E] border-[#1A2C46] hover:bg-[#132742] text-[#B4C6DF]'
                         )}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3.5">
                           <span className={clsx(
-                            'w-7 h-7 rounded-lg flex items-center justify-center font-mono font-bold text-xs',
+                            'w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-sm',
                             isSelected ? 'bg-blue-500 text-white' : 'bg-[#050B14] text-red-400 border border-[#1A2C46]'
                           )}>
                             #{p.rank}
                           </span>
                           <div>
-                            <div className="font-bold text-white text-xs flex items-center gap-2">
+                            <div className="font-bold text-white text-sm flex items-center gap-2">
                               <span>{p.id}</span>
                               {isSelected && (
-                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-400 text-slate-900 font-bold">
+                                <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-400 text-slate-900 font-bold">
                                   TARGET LOCKED
                                 </span>
                               )}
                             </div>
-                            <div className="text-[10px] text-[#8A9EB8] mt-0.5">{p.reason}</div>
+                            <div className="text-xs text-[#8A9EB8] mt-0.5">{p.reason}</div>
                           </div>
                         </div>
 
                         <div className="text-right">
-                          <span className={clsx('font-mono font-bold text-sm', p.risk_level === 'Critical' ? 'text-red-400' : 'text-orange-400')}>
+                          <span className={clsx('font-mono font-bold text-base', p.risk_level === 'Critical' ? 'text-red-400' : 'text-orange-400')}>
                             {p.flood_probability_percent}%
                           </span>
-                          <div className="text-[9px] text-[#5C85C5] uppercase font-bold">{p.risk_level}</div>
+                          <div className="text-[10px] text-[#5C85C5] uppercase font-bold">{p.risk_level}</div>
                         </div>
                       </div>
                     );
@@ -888,21 +888,21 @@ export default function DashboardPage() {
                     <span className="text-xl font-bold font-mono" style={{ color: currentRiskColor }}>
                       {selectedCell.flood_probability_percent}%
                     </span>
-                    <span className="text-[8px] text-[#8A9EB8] uppercase tracking-wider">Flood Risk</span>
+                    <span className="text-[9px] text-[#8A9EB8] uppercase tracking-wider font-semibold">Flood Risk</span>
                   </div>
                 </div>
 
                 {/* Status & Event info */}
                 <div className="flex-1 space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-[#5C85C5]">{selectedCell.id}</span>
+                    <span className="font-mono text-xs text-[#5C85C5] font-bold">{selectedCell.id}</span>
                     <span className={clsx('text-xs font-bold px-2.5 py-0.5 rounded-full border', RISK_BG_CLASSES[selectedCell.risk_level])}>
                       {selectedCell.risk_level}
                     </span>
                   </div>
                   <h3 className="text-sm font-bold text-white">{selectedCell.location_name}</h3>
-                  <div className="text-[11px] text-[#8A9EB8] flex items-center gap-1.5">
-                    <Clock size={12} className="text-cyan-400" />
+                  <div className="text-xs text-[#8A9EB8] flex items-center gap-1.5">
+                    <Clock size={13} className="text-cyan-400" />
                     Event Date: <span className="text-white font-mono">{selectedCell.event_id ?? 'Historical Set'}</span>
                   </div>
                 </div>
@@ -911,17 +911,17 @@ export default function DashboardPage() {
               {/* Hydro-Meteorological Features */}
               <div>
                 <h4 className="text-xs font-bold text-white flex items-center gap-2 mb-2">
-                  <Droplets size={14} className="text-blue-400" />
+                  <Droplets size={15} className="text-blue-400" />
                   Hydro-Meteorological Features (Actual Observation)
                 </h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5">
-                    <span className="text-[10px] text-[#8A9EB8]">1-Day Rainfall (mm)</span>
-                    <div className="text-base font-bold font-mono text-cyan-400">{selectedCell.precip_1d.toFixed(1)} mm</div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3">
+                    <span className="text-xs text-[#8A9EB8]">1-Day Rainfall (mm)</span>
+                    <div className="text-base font-bold font-mono text-cyan-400 mt-0.5">{selectedCell.precip_1d.toFixed(1)} mm</div>
                   </div>
-                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5">
-                    <span className="text-[10px] text-[#8A9EB8]">3-Day Cumulative (mm)</span>
-                    <div className="text-base font-bold font-mono text-blue-400">{selectedCell.precip_3d.toFixed(1)} mm</div>
+                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3">
+                    <span className="text-xs text-[#8A9EB8]">3-Day Cumulative (mm)</span>
+                    <div className="text-base font-bold font-mono text-blue-400 mt-0.5">{selectedCell.precip_3d.toFixed(1)} mm</div>
                   </div>
                 </div>
               </div>
@@ -929,29 +929,29 @@ export default function DashboardPage() {
               {/* Topographical & Catchment Characteristics */}
               <div>
                 <h4 className="text-xs font-bold text-white flex items-center gap-2 mb-2">
-                  <Mountain size={14} className="text-amber-400" />
+                  <Mountain size={15} className="text-amber-400" />
                   Topography & Catchment Parameters
                 </h4>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5">
-                    <div className="text-[10px] text-[#8A9EB8]">Elevation (DEM)</div>
-                    <div className="text-sm font-bold text-white">{selectedCell.elevation} m</div>
+                <div className="grid grid-cols-2 gap-2.5 text-xs">
+                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3">
+                    <div className="text-xs text-[#8A9EB8]">Elevation (DEM)</div>
+                    <div className="text-sm font-bold text-white mt-0.5">{selectedCell.elevation} m</div>
                   </div>
-                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5">
-                    <div className="text-[10px] text-[#8A9EB8]">Terrain Slope</div>
-                    <div className="text-sm font-bold text-white">{selectedCell.slope.toFixed(1)}°</div>
+                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3">
+                    <div className="text-xs text-[#8A9EB8]">Terrain Slope</div>
+                    <div className="text-sm font-bold text-white mt-0.5">{selectedCell.slope.toFixed(1)}°</div>
                   </div>
-                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5">
-                    <div className="text-[10px] text-[#8A9EB8]">Topographic Wetness (TWI)</div>
-                    <div className="text-sm font-bold text-white font-mono">{selectedCell.TWI.toFixed(2)}</div>
+                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3">
+                    <div className="text-xs text-[#8A9EB8]">Topographic Wetness (TWI)</div>
+                    <div className="text-sm font-bold text-white font-mono mt-0.5">{selectedCell.TWI.toFixed(2)}</div>
                   </div>
-                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5">
-                    <div className="text-[10px] text-[#8A9EB8]">Upstream Area (log)</div>
-                    <div className="text-sm font-bold text-white font-mono">{selectedCell.upstream_area_log.toFixed(2)}</div>
+                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3">
+                    <div className="text-xs text-[#8A9EB8]">Upstream Area (log)</div>
+                    <div className="text-sm font-bold text-white font-mono mt-0.5">{selectedCell.upstream_area_log.toFixed(2)}</div>
                   </div>
-                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5">
-                    <div className="text-[10px] text-[#8A9EB8]">Coordinates</div>
-                    <div className="text-[11px] font-mono text-[#5C85C5]">{selectedCell.lat.toFixed(3)}°, {selectedCell.lon.toFixed(3)}°</div>
+                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3 col-span-2">
+                    <div className="text-xs text-[#8A9EB8]">Coordinates</div>
+                    <div className="text-xs font-mono text-[#5C85C5] font-bold mt-0.5">{selectedCell.lat.toFixed(3)}°, {selectedCell.lon.toFixed(3)}°</div>
                   </div>
                 </div>
               </div>
@@ -959,9 +959,9 @@ export default function DashboardPage() {
               {/* Action Button to SHAP / LLM Advisory */}
               <button
                 onClick={() => setRightTab('shap')}
-                className="w-full bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-400 font-bold py-2 rounded-lg transition flex items-center justify-center gap-2 text-xs"
+                className="w-full bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-400 font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 text-xs"
               >
-                <Sparkles size={14} className="text-cyan-400" />
+                <Sparkles size={15} className="text-cyan-400" />
                 View AI Flood Advisory & Notice &rarr;
               </button>
             </div>
@@ -972,11 +972,11 @@ export default function DashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold text-white flex items-center gap-2">
-                    <Sparkles size={14} className="text-cyan-400" />
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Sparkles size={15} className="text-cyan-400" />
                     AI Flood Notice & Advisory
                   </h3>
-                  <p className="text-[10px] text-[#8A9EB8]">
+                  <p className="text-xs text-[#8A9EB8]">
                     Synthesized by Gemini LLM from XGBoost prediction & SHAP drivers
                   </p>
                 </div>
