@@ -114,6 +114,49 @@ class PriorityArea(BaseModel):
     twi: float
     reason: str
     location_name: str
+    priority_score: Optional[float] = None
+    priority_percent: Optional[float] = None
+    rank_delta: Optional[int] = None
+    rank_delta_label: Optional[str] = None
+    factor_breakdown: Optional[Dict[str, Any]] = None
+    nearest_critical_hub: Optional[Dict[str, Any]] = None
+
+
+class ResponseZone(BaseModel):
+    zone_id: str
+    name: str
+    rank: Optional[int] = None
+    sector_count: int
+    priority_score: float
+    priority_percent: float
+    peak_probability_percent: float
+    rank_delta: int
+    rank_delta_label: str
+    reason: str
+    centroid: List[float]
+    bbox: List[float]
+    factor_breakdown: Dict[str, float]
+    top_sectors: List[str]
+
+
+class AlertIncident(BaseModel):
+    incident_id: str
+    name: str
+    headline: str
+    sector_count: int
+    peak_probability: float
+    peak_probability_percent: float
+    avg_probability_percent: float
+    onset: str
+    peak: str
+    top_drivers: List[str]
+    action_line: str
+    state: str  # "New" | "Escalated" | "Cleared"
+    trend: str  # "▲ Intensifying" | "▶ Peak" | "▼ Receding"
+    countdown: str
+    centroid: List[float]
+    bbox: List[float]
+    sector_ids: List[str]
 
 
 class ModelMetricsResponse(BaseModel):
@@ -125,4 +168,4 @@ class ModelMetricsResponse(BaseModel):
     threshold: float
     metrics: Dict[str, Any]
     feature_importance: List[Dict[str, Any]]
-    shap_importance: List[Dict[str, Any]]
+    shap_importance: List[Dict[str, Any]]

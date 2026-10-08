@@ -144,6 +144,43 @@ export interface ModelMetricsResponse {
   shap_importance: Array<{ feature: string; mean_abs_shap: number }>;
 }
 
+export interface ResponseZone {
+  zone_id: string;
+  name: string;
+  rank?: number;
+  sector_count: number;
+  priority_score: number;
+  priority_percent: number;
+  peak_probability_percent: number;
+  rank_delta: number;
+  rank_delta_label: string;
+  reason: string;
+  centroid: number[];
+  bbox: number[];
+  factor_breakdown: Record<string, number>;
+  top_sectors: string[];
+}
+
+export interface AlertIncident {
+  incident_id: string;
+  name: string;
+  headline: string;
+  sector_count: number;
+  peak_probability: number;
+  peak_probability_percent: number;
+  avg_probability_percent: number;
+  onset: string;
+  peak: string;
+  top_drivers: string[];
+  action_line: string;
+  state: "New" | "Escalated" | "Cleared";
+  trend: string;
+  countdown: string;
+  centroid: number[];
+  bbox: number[];
+  sector_ids: string[];
+}
+
 export async function checkApiHealth(): Promise<boolean> {
   try {
     const response = await fetch(`${API_BASE_URL}/health`, { cache: "no-store" });
@@ -214,6 +251,24 @@ export async function fetchPriorities(topN: number = 10): Promise<PriorityArea[]
   if (!response.ok) {
     const err = await response.text();
     throw new Error(`Priority fetch error (${response.status}): ${err}`);
+  }
+  return response.json();
+}
+
+export async function fetchPriorityZones(topN: number = 10): Promise<ResponseZone[]> {
+  const response = await fetch(`${API_BASE_URL}/predict/priority/zones?top_n=${topN}`);
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Priority zones fetch error (${response.status}): ${err}`);
+  }
+  return response.json();
+}
+
+export async function fetchAlertIncidents(): Promise<AlertIncident[]> {
+  const response = await fetch(`${API_BASE_URL}/predict/alerts/incidents`);
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Incidents fetch error (${response.status}): ${err}`);
   }
   return response.json();
 }

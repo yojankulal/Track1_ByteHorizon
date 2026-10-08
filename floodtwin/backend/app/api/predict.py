@@ -10,6 +10,8 @@ try:
         LocalShapResponse,
         GridResponse,
         PriorityArea,
+        ResponseZone,
+        AlertIncident,
         ModelMetricsResponse,
     )
     from floodtwin.backend.app.models.xgb_model import (
@@ -18,6 +20,8 @@ try:
         simulate_whatif_scenario,
         generate_sulawesi_grid,
         get_priority_areas,
+        get_response_zones_summary,
+        get_incidents_summary,
         get_model_metrics_summary,
         get_risk_level,
     )
@@ -30,6 +34,8 @@ except ImportError:
         LocalShapResponse,
         GridResponse,
         PriorityArea,
+        ResponseZone,
+        AlertIncident,
         ModelMetricsResponse,
     )
     from backend.app.models.xgb_model import (
@@ -38,6 +44,8 @@ except ImportError:
         simulate_whatif_scenario,
         generate_sulawesi_grid,
         get_priority_areas,
+        get_response_zones_summary,
+        get_incidents_summary,
         get_model_metrics_summary,
         get_risk_level,
     )
@@ -125,15 +133,43 @@ def get_grid(
 @router.get(
     "/priority",
     response_model=List[PriorityArea],
-    summary="Get ranked emergency priority areas in Sulawesi based on predicted flood risk",
+    summary="Get defensible multi-factor ranked emergency priority areas in Sulawesi",
 )
 def get_priorities(
-    top_n: int = Query(default=10, ge=1, le=50, description="Number of priority areas")
+    top_n: int = Query(default=20, ge=1, le=100, description="Number of priority areas")
 ):
     """
-    Returns the highest risk Sulawesi sectors ranked by model-predicted flood probability.
+    Returns the highest priority Sulawesi sectors ranked by multi-factor score
+    (Probability, Exposure proxy, Accessibility/Isolation, Critical Infrastructure).
     """
     return get_priority_areas(top_n=top_n)
+
+
+@router.get(
+    "/priority/zones",
+    response_model=List[ResponseZone],
+    summary="Get top response zones grouped with 4-factor breakdown and operational reasons",
+)
+def get_priority_zones(
+    top_n: int = Query(default=10, ge=1, le=25, description="Number of response zones")
+):
+    """
+    Groups priority sectors into the top response zones with 4-factor breakdown and reason lines.
+    """
+    return get_response_zones_summary(top_n=top_n)
+
+
+@router.get(
+    "/alerts/incidents",
+    response_model=List[AlertIncident],
+    summary="Get clustered flood incidents (10-20 incidents) with onset, peak, action line, and alert states",
+)
+def get_alert_incidents():
+    """
+    Clusters flooded sectors into 10–20 named incidents with onset, peak, top drivers,
+    action line, alert states (New, Escalated, Cleared), trend arrows, and countdown timer.
+    """
+    return get_incidents_summary()
 
 
 @router.get(

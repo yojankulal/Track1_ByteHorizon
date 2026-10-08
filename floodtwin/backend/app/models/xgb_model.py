@@ -358,46 +358,61 @@ def generate_sulawesi_grid(sample_size: int = 1200) -> Dict[str, Any]:
 
 def get_priority_areas(top_n: int = 10) -> List[Dict[str, Any]]:
     """
-    Get top priority flood risk areas ranked by predicted flood probability.
+    Get top priority flood risk areas ranked by multi-factor defensible priority score
+    (Probability, Exposure, Accessibility, Criticality) with rank delta and 4-factor breakdown.
     """
     grid = generate_sulawesi_grid()
     cells = grid["cells"]
+    try:
+        try:
+            from floodtwin.backend.app.models.priority_engine import calculate_multi_factor_priorities
+        except ImportError:
+            from backend.app.models.priority_engine import calculate_multi_factor_priorities
+        return calculate_multi_factor_priorities(cells, top_n=top_n)
+    except Exception as e:
+        # Fallback to probability sort if any unexpected issue
+        sorted_cells = sorted(cells, key=lambda c: c["flood_probability"], reverse=True)
+        priorities = []
+        for rank, c in enumerate(sorted_cells[:top_n], start=1):
+            priorities.append({
+                "rank": rank,
+                "id": c["id"],
+                "lon": c["lon"],
+                "lat": c["lat"],
+                "flood_probability": c["flood_probability"],
+                "flood_probability_percent": c["flood_probability_percent"],
+                "risk_level": c["risk_level"],
+                "elevation": c["elevation"],
+                "precip_3d": c["precip_3d"],
+                "landcover": c["landcover"],
+                "twi": c["TWI"],
+                "reason": f"High flood probability ({c['flood_probability_percent']}%)",
+                "location_name": c["location_name"],
+            })
+        return priorities
 
-    # Sort by flood probability descending
-    sorted_cells = sorted(cells, key=lambda c: c["flood_probability"], reverse=True)
 
-    priorities = []
-    for rank, c in enumerate(sorted_cells[:top_n], start=1):
-        # Generate scientific reason based on actual features
-        reasons = []
-        if c["elevation"] <= 15:
-            reasons.append(f"Low elevation ({c['elevation']:.0f}m)")
-        if c["precip_3d"] >= 50:
-            reasons.append(f"Heavy 3-day rainfall ({c['precip_3d']:.1f}mm)")
-        if c["TWI"] >= 10:
-            reasons.append(f"High wetness index ({c['TWI']:.1f})")
-        if c["slope"] <= 3:
-            reasons.append(f"Flat drainage slope ({c['slope']:.1f}°)")
+def get_response_zones_summary(top_n: int = 10) -> List[Dict[str, Any]]:
+    """Get top 10 response zones grouped with multi-factor breakdown and reason lines."""
+    grid = generate_sulawesi_grid()
+    cells = grid["cells"]
+    try:
+        from floodtwin.backend.app.models.priority_engine import get_response_zones
+    except ImportError:
+        from backend.app.models.priority_engine import get_response_zones
+    return get_response_zones(cells, top_n=top_n)
 
-        reason_str = " • ".join(reasons) if reasons else "Elevated hydro-topographic flood susceptibility"
 
-        priorities.append({
-            "rank": rank,
-            "id": c["id"],
-            "lon": c["lon"],
-            "lat": c["lat"],
-            "flood_probability": c["flood_probability"],
-            "flood_probability_percent": c["flood_probability_percent"],
-            "risk_level": c["risk_level"],
-            "elevation": c["elevation"],
-            "precip_3d": c["precip_3d"],
-            "landcover": c["landcover"],
-            "twi": c["TWI"],
-            "reason": reason_str,
-            "location_name": c["location_name"],
-        })
+def get_incidents_summary() -> List[Dict[str, Any]]:
+    """Get clustered incidents (10-20 incidents) with onset, peak, action line, state, trend, and countdown."""
+    grid = generate_sulawesi_grid()
+    cells = grid["cells"]
+    try:
+        from floodtwin.backend.app.models.priority_engine import get_clustered_incidents
+    except ImportError:
+        from backend.app.models.priority_engine import get_clustered_incidents
+    return get_clustered_incidents(cells)
 
-    return priorities
 
 
 def get_model_metrics_summary() -> Dict[str, Any]:
