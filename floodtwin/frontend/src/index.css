@@ -27,11 +27,11 @@
   --bg-card:        #FFFFFF; /* Pure white card containers */
   --bg-card-subtle: #F8FAFC; /* Very light slate subtle nested containers */
   --bg-input:       #F1F5F9; /* Form inputs & select dropdowns */
-  --border:         #E2E8F0; /* Clean Slate-200 border */
-  --border-mid:     #CBD5E1; /* Slate-300 divider/border */
+  --border:         #CBD5E1; /* Slate-300 border for sharp definition */
+  --border-mid:     #94A3B8; /* Slate-400 divider/border */
   --text-primary:   #0F172A; /* Slate-900 high-contrast text */
-  --text-muted:     #64748B; /* Slate-500 secondary text */
-  --text-dim:       #475569; /* Slate-600 tertiary text */
+  --text-muted:     #334155; /* Slate-700 high-contrast secondary text */
+  --text-dim:       #1E293B; /* Slate-800 dark text */
   --accent:         #2563EB; /* Vibrant Royal Blue */
   --scrollbar-track:#F1F5F9;
   --scrollbar-thumb:#CBD5E1;
@@ -88,22 +88,108 @@
   .border-\[\#1A2C46\],
   .border-\[\#243554\],
   .border-\[\#21426d\] {
-    border-color: #E2E8F0 !important;
+    border-color: #CBD5E1 !important;
   }
 
-  /* Text Colors */
+  /* Text Colors Override for Light Mode - High Contrast Crisp Legibility */
   .text-white {
     color: #0F172A !important;
   }
 
   .text-\[\#8A9EB8\],
   .text-\[\#B4C6DF\],
-  .text-\[\#9FB0CC\] {
-    color: #64748B !important;
+  .text-\[\#9FB0CC\],
+  .text-\[\#CBD5E1\],
+  .text-\[\#64748B\],
+  .text-\[\#94A3B8\] {
+    color: #334155 !important;
   }
 
   .text-\[\#5C85C5\] {
-    color: #475569 !important;
+    color: #1E293B !important;
+  }
+
+  /* Standard Tailwind gray/slate/zinc text overrides for crisp high contrast */
+  .text-slate-300,
+  .text-slate-400,
+  .text-slate-500,
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-500,
+  .text-zinc-300,
+  .text-zinc-400,
+  .text-zinc-500 {
+    color: #334155 !important;
+  }
+
+  .text-slate-600,
+  .text-gray-600,
+  .text-zinc-600 {
+    color: #0F172A !important;
+  }
+
+  /* Translucent White text overrides in Light Mode */
+  .text-white\/90 { color: rgba(15, 23, 42, 0.95) !important; }
+  .text-white\/80 { color: rgba(15, 23, 42, 0.90) !important; }
+  .text-white\/70 { color: rgba(15, 23, 42, 0.85) !important; }
+  .text-white\/60 { color: rgba(15, 23, 42, 0.80) !important; }
+  .text-white\/50 { color: rgba(15, 23, 42, 0.75) !important; }
+  .text-white\/40 { color: rgba(15, 23, 42, 0.70) !important; }
+  .text-white\/30 { color: rgba(15, 23, 42, 0.65) !important; }
+
+  /* Accent & Status Text Overrides for High Contrast in Light Mode */
+  .text-cyan-400,
+  .text-cyan-300,
+  .text-cyan-200,
+  .text-cyan-100 {
+    color: #0891B2 !important;
+  }
+
+  .text-blue-400,
+  .text-blue-300,
+  .text-blue-200,
+  .text-blue-100 {
+    color: #1D4ED8 !important;
+  }
+
+  .text-sky-400,
+  .text-sky-300,
+  .text-sky-200,
+  .text-sky-100 {
+    color: #0284C7 !important;
+  }
+
+  .text-emerald-400,
+  .text-emerald-300,
+  .text-emerald-200 {
+    color: #059669 !important;
+  }
+
+  .text-amber-400,
+  .text-amber-300,
+  .text-yellow-400,
+  .text-yellow-300 {
+    color: #D97706 !important;
+  }
+
+  .text-orange-400,
+  .text-orange-300 {
+    color: #EA580C !important;
+  }
+
+  .text-red-400,
+  .text-red-300 {
+    color: #DC2626 !important;
+  }
+
+  .text-purple-400,
+  .text-purple-300 {
+    color: #7C3AED !important;
+  }
+
+  .text-rose-400,
+  .text-rose-300 {
+    color: #E11D48 !important;
   }
 
   /* Inactive button text */
@@ -126,7 +212,9 @@
   .bg-red-600 .text-white,
   .bg-red-600.text-white,
   .bg-emerald-600 .text-white,
-  .bg-emerald-600.text-white {
+  .bg-emerald-600.text-white,
+  .bg-amber-600 .text-white,
+  .bg-amber-600.text-white {
     color: #FFFFFF !important;
   }
 
@@ -135,7 +223,7 @@
   .bg-\[\#081220\]\/95,
   .bg-\[\#080F1E\]\/95 {
     background-color: rgba(255, 255, 255, 0.95) !important;
-    border-color: #E2E8F0 !important;
+    border-color: #CBD5E1 !important;
     color: #0F172A !important;
   }
 
