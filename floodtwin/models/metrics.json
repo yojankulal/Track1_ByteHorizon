@@ -1,0 +1,55 @@
+{
+    "model": "XGBoost",
+    "target": "target",
+    "features": [
+        "lon",
+        "lat",
+        "precip_1d",
+        "precip_3d",
+        "landcover",
+        "elevation",
+        "slope",
+        "TWI",
+        "upstream_area_log",
+        "aspect_sin",
+        "aspect_cos"
+    ],
+    "dataset": {
+        "total_rows": 400000,
+        "train_rows": 259300,
+        "validation_rows": 65528,
+        "test_rows": 75172
+    },
+    "class_balance": {
+        "non_flood": 382017,
+        "flood": 17983,
+        "flood_rate": 0.0449575
+    },
+    "threshold": 0.5,
+    "metrics": {
+        "train": {
+            "accuracy": 0.9549363671423062,
+            "precision": 0.46786316221017626,
+            "recall": 0.9997080007786646,
+            "f1": 0.6374158314456821,
+            "roc_auc": 0.9952976406748397,
+            "pr_auc": 0.8806660581281207
+        },
+        "validation": {
+            "accuracy": 0.9399798559394458,
+            "precision": 0.34505862646566166,
+            "recall": 0.5466262319939348,
+            "f1": 0.42305999706615816,
+            "roc_auc": 0.942151998067314,
+            "pr_auc": 0.40546402129004394
+        },
+        "test": {
+            "accuracy": 0.903022401958176,
+            "precision": 0.3887496239847589,
+            "recall": 0.7645434825478209,
+            "f1": 0.5154214304706195,
+            "roc_auc": 0.9302958712942034,
+            "pr_auc": 0.45092906637031777
+        }
+    }
+}
