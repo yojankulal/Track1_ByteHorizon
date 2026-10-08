@@ -5,40 +5,43 @@
 /* ─── Theme CSS variables ─────────────────────────────────────────────────── */
 :root {
   /* Dark mode (default) */
-  --bg-page:      #040B14;
-  --bg-surface:   #081220;
-  --bg-card:      #0A1628;
-  --bg-input:     #0D1B2E;
-  --border:       #1A2C46;
-  --border-mid:   #243554;
-  --text-primary: #ffffff;
-  --text-muted:   #8A9EB8;
-  --text-dim:     #5C85C5;
-  --accent:       #3b82f6;
-  --scrollbar-track: #080F1E;
-  --scrollbar-thumb: #1E3A5F;
+  --bg-page:        #040B14;
+  --bg-surface:     #081220;
+  --bg-card:        #0A1628;
+  --bg-card-subtle: #0D1B2E;
+  --bg-input:       #0D1B2E;
+  --border:         #1A2C46;
+  --border-mid:     #243554;
+  --text-primary:   #ffffff;
+  --text-muted:     #8A9EB8;
+  --text-dim:       #5C85C5;
+  --accent:         #3b82f6;
+  --scrollbar-track:#080F1E;
+  --scrollbar-thumb:#1E3A5F;
 }
 
 [data-theme="light"] {
-  --bg-page:      #EEF2F8;
-  --bg-surface:   #FFFFFF;
-  --bg-card:      #F4F7FB;
-  --bg-input:     #E8EFF8;
-  --border:       #C5D3E8;
-  --border-mid:   #A8BDD6;
-  --text-primary: #0A1628;
-  --text-muted:   #4A6080;
-  --text-dim:     #3A6090;
-  --accent:       #2563eb;
-  --scrollbar-track: #D8E4F0;
-  --scrollbar-thumb: #94AFCC;
+  /* Exact Reference Light Theme Palette */
+  --bg-page:        #F8FAFC; /* Clean, modern ultra-soft slate/off-white */
+  --bg-surface:     #FFFFFF; /* Pure crisp white surfaces */
+  --bg-card:        #FFFFFF; /* Pure white card containers */
+  --bg-card-subtle: #F8FAFC; /* Very light slate subtle nested containers */
+  --bg-input:       #F1F5F9; /* Form inputs & select dropdowns */
+  --border:         #E2E8F0; /* Clean Slate-200 border */
+  --border-mid:     #CBD5E1; /* Slate-300 divider/border */
+  --text-primary:   #0F172A; /* Slate-900 high-contrast text */
+  --text-muted:     #64748B; /* Slate-500 secondary text */
+  --text-dim:       #475569; /* Slate-600 tertiary text */
+  --accent:         #2563EB; /* Vibrant Royal Blue */
+  --scrollbar-track:#F1F5F9;
+  --scrollbar-thumb:#CBD5E1;
 }
 
 @layer base {
   body {
     background-color: var(--bg-page);
     color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 
   html {
@@ -48,6 +51,134 @@
   [data-theme="light"] html,
   html[data-theme="light"] {
     color-scheme: light;
+  }
+}
+
+/* ─── Light Mode Automated Palette Mappings ──────────────────────────────── */
+[data-theme="light"] {
+  /* Container background overrides for light mode */
+  .bg-\[\#081220\],
+  .bg-\[\#0A1628\],
+  .bg-\[\#080F1E\],
+  .bg-\[\#040B14\] {
+    background-color: #FFFFFF !important;
+  }
+
+  /* Secondary / nested background overrides */
+  .bg-\[\#0D1B2E\],
+  .bg-\[\#0B1526\],
+  .bg-\[\#050B14\],
+  .bg-\[\#091322\],
+  .bg-\[\#0F2038\],
+  .bg-\[\#0c1a2f\] {
+    background-color: #F8FAFC !important;
+  }
+
+  .bg-\[\#142842\],
+  .bg-\[\#132742\] {
+    background-color: #F1F5F9 !important;
+  }
+
+  .hover\:bg-\[\#132742\]:hover,
+  .hover\:bg-\[\#1b3558\]:hover {
+    background-color: #E2E8F0 !important;
+  }
+
+  /* Borders */
+  .border-\[\#1A2C46\],
+  .border-\[\#243554\],
+  .border-\[\#21426d\] {
+    border-color: #E2E8F0 !important;
+  }
+
+  /* Text Colors */
+  .text-white {
+    color: #0F172A !important;
+  }
+
+  .text-\[\#8A9EB8\],
+  .text-\[\#B4C6DF\],
+  .text-\[\#9FB0CC\] {
+    color: #64748B !important;
+  }
+
+  .text-\[\#5C85C5\] {
+    color: #475569 !important;
+  }
+
+  /* Inactive button text */
+  .hover\:text-white:hover {
+    color: #0F172A !important;
+  }
+
+  /* Accent Presets & Range Inputs */
+  input[type="range"] {
+    background-color: #E2E8F0 !important;
+  }
+
+  /* Preserve White Text on Solid Buttons & Active Badges */
+  .bg-blue-600 .text-white,
+  .bg-blue-600.text-white,
+  button.bg-blue-600,
+  a.bg-blue-600,
+  .bg-blue-700 .text-white,
+  .bg-blue-700.text-white,
+  .bg-red-600 .text-white,
+  .bg-red-600.text-white,
+  .bg-emerald-600 .text-white,
+  .bg-emerald-600.text-white {
+    color: #FFFFFF !important;
+  }
+
+  /* Floating Widgets on Map in Light Mode */
+  .bg-\[\#081220\]\/90,
+  .bg-\[\#081220\]\/95,
+  .bg-\[\#080F1E\]\/95 {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-color: #E2E8F0 !important;
+    color: #0F172A !important;
+  }
+
+  /* Light mode select dropdowns */
+  select.bg-\[\#0D1B2E\] {
+    background-color: #FFFFFF !important;
+    border-color: #CBD5E1 !important;
+    color: #0F172A !important;
+  }
+
+  /* Cyclone status bar / warning banner in Light Mode */
+  .bg-amber-500\/10 {
+    background-color: #FFFBEB !important;
+    border-color: #FDE68A !important;
+    color: #D97706 !important;
+  }
+
+  .bg-blue-500\/10 {
+    background-color: #EFF6FF !important;
+    border-color: #BFDBFE !important;
+    color: #2563EB !important;
+  }
+
+  .bg-emerald-500\/10 {
+    background-color: #ECFDF5 !important;
+    border-color: #A7F3D0 !important;
+    color: #059669 !important;
+  }
+
+  .bg-red-500\/10 {
+    background-color: #FEF2F2 !important;
+    border-color: #FECACA !important;
+    color: #DC2626 !important;
+  }
+
+  /* SVG Circular Gauge Background Track */
+  svg circle[stroke="#1A2C46"] {
+    stroke: #E2E8F0 !important;
+  }
+
+  /* Feature driver progress bars track */
+  .bg-\[\#050B14\] {
+    background-color: #F1F5F9 !important;
   }
 }
 
