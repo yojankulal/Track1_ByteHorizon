@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import {
   FlaskConical, RefreshCw, ArrowRight,
-  TrendingUp, Mountain, Droplets, Activity
+  TrendingUp, Mountain, Droplets,
+  Sparkles, FileText, CheckCircle2
 } from 'lucide-react';
 import {
   fetchGrid, explainFlood, simulateScenario, computePhysicalHydrologicalSimulation,
@@ -385,39 +386,49 @@ export default function WhatIfPage() {
               </div>
             </div>
 
-            {/* Scenario SHAP waterfall / drivers */}
+            {/* Scenario SHAP & LLM Notice */}
             {simulationResult.shap && (
-              <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-5 space-y-3 shadow-xl">
-                <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                  <Activity size={14} className="text-blue-400" />
-                  Scenario TreeSHAP Feature Attributions
-                </h4>
-                <p className="text-[11px] text-[#8A9EB8]">
-                  How modified meteorological inputs changed the local decision margin
-                </p>
-
-                <div className="space-y-2 pt-2">
-                  {simulationResult.shap.contributions.slice(0, 6).map(c => {
-                    const isPos = c.shap_value > 0;
-                    return (
-                      <div key={c.feature} className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-3 flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="font-bold text-white">{c.label}</span>
-                            <span className="text-[10px] text-[#8A9EB8] font-mono">({c.value})</span>
-                          </div>
-                          <p className="text-[10px] text-[#8A9EB8]">{c.description}</p>
-                        </div>
-                        <div className="text-right">
-                          <span className={clsx('font-mono font-bold text-xs', isPos ? 'text-red-400' : 'text-emerald-400')}>
-                            {isPos ? `+${c.shap_value}` : c.shap_value}
-                          </span>
-                          <div className="text-[10px] text-[#5C85C5]">{c.percentage_impact}% impact</div>
-                        </div>
-                      </div>
-                    );
-                  })}
+              <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-5 space-y-4 shadow-xl">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                    <Sparkles size={14} className="text-cyan-400" />
+                    Gemini AI Advisory & Notice
+                  </h4>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-cyan-300 border border-blue-500/30 font-mono">
+                    {simulationResult.shap.llm_explanation?.model_used || 'Gemini LLM'}
+                  </span>
                 </div>
+
+                {simulationResult.shap.llm_explanation && (
+                  <div className="space-y-3">
+                    <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-3 space-y-1.5">
+                      <h5 className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+                        <FileText size={13} />
+                        {simulationResult.shap.llm_explanation.headline}
+                      </h5>
+                      <p className="text-xs text-[#C8D6E5] leading-relaxed">
+                        {simulationResult.shap.llm_explanation.simple_notice}
+                      </p>
+                    </div>
+
+                    {simulationResult.shap.llm_explanation.recommended_actions?.length > 0 && (
+                      <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-3 space-y-1.5">
+                        <div className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                          <CheckCircle2 size={13} />
+                          Recommended Safety Actions
+                        </div>
+                        <ul className="text-xs text-[#C8D6E5] space-y-1">
+                          {simulationResult.shap.llm_explanation.recommended_actions.map((act, i) => (
+                            <li key={i} className="flex items-start gap-1.5">
+                              <span className="text-emerald-400">•</span>
+                              <span>{act}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

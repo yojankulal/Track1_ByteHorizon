@@ -50,6 +50,15 @@ class LocalShapContribution(BaseModel):
     description: str
 
 
+class LLMExplanation(BaseModel):
+    headline: str
+    simple_notice: str
+    recommended_actions: List[str]
+    key_factors: List[str]
+    llm_status: str
+    model_used: str
+
+
 class LocalShapResponse(BaseModel):
     base_value: float
     output_margin: float
@@ -57,6 +66,7 @@ class LocalShapResponse(BaseModel):
     flood_probability_percent: float
     risk_level: str
     contributions: List[LocalShapContribution]
+    llm_explanation: Optional[LLMExplanation] = None
 
 
 class GridCell(BaseModel):

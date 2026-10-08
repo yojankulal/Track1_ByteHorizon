@@ -48,6 +48,15 @@ export interface LocalShapContribution {
   description: string;
 }
 
+export interface LLMExplanation {
+  headline: string;
+  simple_notice: string;
+  recommended_actions: string[];
+  key_factors: string[];
+  llm_status: string;
+  model_used: string;
+}
+
 export interface LocalShapResponse {
   base_value: number;
   output_margin: number;
@@ -55,6 +64,7 @@ export interface LocalShapResponse {
   flood_probability_percent: number;
   risk_level: "Low" | "Moderate" | "High" | "Critical";
   contributions: LocalShapContribution[];
+  llm_explanation?: LLMExplanation;
 }
 
 export interface GridCell {

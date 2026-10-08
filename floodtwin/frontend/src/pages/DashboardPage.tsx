@@ -2,7 +2,8 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   MapPin, AlertTriangle, Activity, Droplets,
   TrendingUp, Sliders, RefreshCw, BarChart3,
-  Layers, Compass, Mountain, ArrowUpRight, ArrowDownRight, Filter, Clock
+  Layers, Compass, Mountain, ArrowUpRight, ArrowDownRight, Filter, Clock,
+  Sparkles, CheckCircle2, ChevronDown, ChevronUp, FileText
 } from 'lucide-react';
 import Map, { Source, Layer, NavigationControl, FullscreenControl, MapLayerMouseEvent } from 'react-map-gl/maplibre';
 import {
@@ -57,6 +58,7 @@ export default function DashboardPage() {
   const [selectedCell, setSelectedCell] = useState<GridCell | null>(null);
   const [shapData, setShapData] = useState<LocalShapResponse | null>(null);
   const [isLoadingShap, setIsLoadingShap] = useState(false);
+  const [showTechShap, setShowTechShap] = useState(false);
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
   const [apiOnline, setApiOnline] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<string>('ALL');
@@ -651,11 +653,12 @@ export default function DashboardPage() {
             <button
               onClick={() => setRightTab('shap')}
               className={clsx(
-                'py-1.5 rounded-md font-medium text-center transition-all',
+                'py-1.5 rounded-md font-medium text-center transition-all flex items-center justify-center gap-1 text-[11px]',
                 rightTab === 'shap' ? 'bg-blue-600 text-white font-bold shadow' : 'text-[#8A9EB8] hover:text-white'
               )}
             >
-              SHAP
+              <Sparkles size={12} className="text-cyan-300" />
+              AI Advisory
             </button>
             <button
               onClick={() => setRightTab('whatif')}
@@ -778,28 +781,28 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Action Button to SHAP */}
+              {/* Action Button to SHAP / LLM Advisory */}
               <button
                 onClick={() => setRightTab('shap')}
                 className="w-full bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-400 font-bold py-2 rounded-lg transition flex items-center justify-center gap-2 text-xs"
               >
-                <Activity size={14} />
-                View Local TreeSHAP Explanation &rarr;
+                <Sparkles size={14} className="text-cyan-400" />
+                View AI Flood Advisory & Notice &rarr;
               </button>
             </div>
           )}
 
-          {/* TAB 2: LOCAL SHAP EXPLANATION */}
+          {/* TAB 2: AI ADVISORY & LLM SHAP EXPLANATION */}
           {rightTab === 'shap' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-xs font-bold text-white flex items-center gap-2">
-                    <Activity size={14} className="text-blue-400" />
-                    Local TreeSHAP Attribution
+                    <Sparkles size={14} className="text-cyan-400" />
+                    AI Flood Notice & Advisory
                   </h3>
                   <p className="text-[10px] text-[#8A9EB8]">
-                    Calculated in real-time from trained XGBoost model booster
+                    Synthesized by Gemini LLM from XGBoost prediction & SHAP drivers
                   </p>
                 </div>
                 {selectedCell && (
@@ -809,68 +812,139 @@ export default function DashboardPage() {
 
               {isLoadingShap ? (
                 <div className="p-8 text-center text-[#8A9EB8] text-xs flex flex-col items-center gap-2">
-                  <RefreshCw size={20} className="animate-spin text-blue-400" />
-                  Calculating exact SHAP feature contributions...
+                  <RefreshCw size={20} className="animate-spin text-cyan-400" />
+                  Generating plain-language Gemini LLM flood notice...
                 </div>
               ) : shapData ? (
                 <div className="space-y-3">
-                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3 flex items-center justify-between text-xs">
-                    <div>
-                      <span className="text-[10px] text-[#8A9EB8]">Baseline Margin:</span>
-                      <div className="font-mono font-bold text-white">{shapData.base_value}</div>
+                  {/* LLM Headline Alert Banner */}
+                  {shapData.llm_explanation && (
+                    <div className={clsx('p-3.5 rounded-xl border space-y-2.5 shadow-lg', RISK_BG_CLASSES[shapData.risk_level] || 'bg-blue-500/20 border-blue-500/40 text-blue-400')}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-black/40 border border-current font-mono">
+                          {shapData.llm_explanation.model_used || 'Gemini LLM'}
+                        </span>
+                        <span className="text-[11px] font-mono font-bold">
+                          Prob: {shapData.flood_probability_percent}%
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-bold leading-tight">
+                        {shapData.llm_explanation.headline}
+                      </h4>
                     </div>
-                    <div>
-                      <span className="text-[10px] text-[#8A9EB8]">Output Margin:</span>
-                      <div className="font-mono font-bold text-cyan-400">{shapData.output_margin}</div>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-[#8A9EB8]">Predicted Probability:</span>
-                      <div className="font-mono font-bold text-red-400">{shapData.flood_probability_percent}%</div>
-                    </div>
-                  </div>
+                  )}
 
-                  <h4 className="text-[11px] font-bold text-white tracking-wider uppercase text-[#5C85C5]">
-                    Why this prediction? (Feature Drivers)
-                  </h4>
+                  {/* Simple Language Notice */}
+                  {shapData.llm_explanation?.simple_notice && (
+                    <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3.5 space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-bold text-white">
+                        <FileText size={14} className="text-blue-400" />
+                        Simplified Public Notice
+                      </div>
+                      <p className="text-xs text-[#C8D6E5] leading-relaxed font-sans">
+                        {shapData.llm_explanation.simple_notice}
+                      </p>
+                    </div>
+                  )}
 
-                  <div className="space-y-2">
-                    {shapData.contributions.map(c => {
-                      const isRiskIncrease = c.direction === 'increases_risk';
-                      return (
-                        <div key={c.feature} className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5 space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-bold text-white flex items-center gap-1.5">
-                              {isRiskIncrease ? (
-                                <ArrowUpRight size={13} className="text-red-400" />
-                              ) : (
-                                <ArrowDownRight size={13} className="text-emerald-400" />
-                              )}
-                              {c.label}
-                            </span>
-                            <span className={clsx('font-mono font-bold text-xs', isRiskIncrease ? 'text-red-400' : 'text-emerald-400')}>
-                              {c.shap_value > 0 ? `+${c.shap_value}` : c.shap_value}
-                            </span>
+                  {/* Key Factors Tags */}
+                  {shapData.llm_explanation?.key_factors && shapData.llm_explanation.key_factors.length > 0 && (
+                    <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3 space-y-2">
+                      <span className="text-[10px] font-bold text-[#8A9EB8] uppercase tracking-wider">Primary Risk Drivers</span>
+                      <div className="flex flex-wrap gap-1.5 pt-0.5">
+                        {shapData.llm_explanation.key_factors.map((kf, idx) => (
+                          <span key={idx} className="text-[11px] px-2.5 py-1 rounded-lg bg-blue-500/10 text-cyan-300 border border-blue-500/30">
+                            {kf}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recommended Actions */}
+                  {shapData.llm_explanation?.recommended_actions && shapData.llm_explanation.recommended_actions.length > 0 && (
+                    <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3.5 space-y-2.5">
+                      <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                        <CheckCircle2 size={14} />
+                        Recommended Safety Actions
+                      </div>
+                      <ul className="space-y-1.5 text-xs text-[#C8D6E5]">
+                        {shapData.llm_explanation.recommended_actions.map((act, idx) => (
+                          <li key={idx} className="flex items-start gap-2 bg-[#081220] p-2 rounded-lg border border-[#1A2C46]">
+                            <span className="text-emerald-400 font-bold">•</span>
+                            <span>{act}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Collapsible Technical SHAP Breakdown */}
+                  <div className="pt-2">
+                    <button
+                      onClick={() => setShowTechShap(!showTechShap)}
+                      className="w-full flex items-center justify-between px-3 py-2 bg-[#081220] hover:bg-[#0D1B2E] border border-[#1A2C46] rounded-lg text-xs text-[#8A9EB8] hover:text-white transition"
+                    >
+                      <span className="font-mono text-[11px]">Technical SHAP Feature Attributions</span>
+                      {showTechShap ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    </button>
+
+                    {showTechShap && (
+                      <div className="space-y-3 pt-3">
+                        <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3 flex items-center justify-between text-xs">
+                          <div>
+                            <span className="text-[10px] text-[#8A9EB8]">Baseline Margin:</span>
+                            <div className="font-mono font-bold text-white">{shapData.base_value}</div>
                           </div>
-
-                          <div className="flex items-center gap-2">
-                            <div className="flex-1 h-1.5 bg-[#050B14] rounded-full overflow-hidden">
-                              <div
-                                className={clsx('h-full rounded-full', isRiskIncrease ? 'bg-red-500' : 'bg-emerald-500')}
-                                style={{ width: `${Math.min(c.percentage_impact * 2, 100)}%` }}
-                              />
-                            </div>
-                            <span className="text-[10px] text-[#8A9EB8] font-mono">{c.percentage_impact}% impact</span>
+                          <div>
+                            <span className="text-[10px] text-[#8A9EB8]">Output Margin:</span>
+                            <div className="font-mono font-bold text-cyan-400">{shapData.output_margin}</div>
                           </div>
-
-                          <p className="text-[10px] text-[#8A9EB8] pt-0.5 leading-tight">{c.description}</p>
+                          <div>
+                            <span className="text-[10px] text-[#8A9EB8]">Predicted Probability:</span>
+                            <div className="font-mono font-bold text-red-400">{shapData.flood_probability_percent}%</div>
+                          </div>
                         </div>
-                      );
-                    })}
+
+                        <div className="space-y-2">
+                          {shapData.contributions.map(c => {
+                            const isRiskIncrease = c.direction === 'increases_risk';
+                            return (
+                              <div key={c.feature} className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5 space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="font-bold text-white flex items-center gap-1.5">
+                                    {isRiskIncrease ? (
+                                      <ArrowUpRight size={13} className="text-red-400" />
+                                    ) : (
+                                      <ArrowDownRight size={13} className="text-emerald-400" />
+                                    )}
+                                    {c.label}
+                                  </span>
+                                  <span className={clsx('font-mono font-bold text-xs', isRiskIncrease ? 'text-red-400' : 'text-emerald-400')}>
+                                    {c.shap_value > 0 ? `+${c.shap_value}` : c.shap_value}
+                                  </span>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 h-1.5 bg-[#050B14] rounded-full overflow-hidden">
+                                    <div
+                                      className={clsx('h-full rounded-full', isRiskIncrease ? 'bg-red-500' : 'bg-emerald-500')}
+                                      style={{ width: `${Math.min(c.percentage_impact * 2, 100)}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-[10px] text-[#8A9EB8] font-mono">{c.percentage_impact}% impact</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
                 <div className="text-xs text-[#8A9EB8] p-4 text-center">
-                  Select a cell on the map to compute its SHAP explanation.
+                  Select a cell on the map to generate its AI flood advisory.
                 </div>
               )}
             </div>

@@ -167,7 +167,7 @@ def explain_flood_prediction(data: dict) -> dict:
     # Sort contributions by absolute SHAP impact descending
     contributions.sort(key=lambda x: abs(x["shap_value"]), reverse=True)
 
-    return {
+    shap_res = {
         "base_value": round(base_value, 4),
         "output_margin": round(output_margin, 4),
         "flood_probability": prob,
@@ -175,6 +175,15 @@ def explain_flood_prediction(data: dict) -> dict:
         "risk_level": risk_lvl,
         "contributions": contributions,
     }
+
+    try:
+        from backend.app.models.llm_explainer import generate_llm_shap_explanation
+        llm_exp = generate_llm_shap_explanation(shap_res, data)
+        shap_res["llm_explanation"] = llm_exp
+    except Exception as e:
+        pass
+
+    return shap_res
 
 
 def simulate_whatif_scenario(
