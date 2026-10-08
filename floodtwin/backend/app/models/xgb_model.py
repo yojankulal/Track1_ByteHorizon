@@ -177,11 +177,22 @@ def explain_flood_prediction(data: dict) -> dict:
     }
 
     try:
-        from backend.app.models.llm_explainer import generate_llm_shap_explanation
+        try:
+            from backend.app.models.llm_explainer import generate_llm_shap_explanation, _generate_fallback_explanation
+        except ImportError:
+            from floodtwin.backend.app.models.llm_explainer import generate_llm_shap_explanation, _generate_fallback_explanation
         llm_exp = generate_llm_shap_explanation(shap_res, data)
         shap_res["llm_explanation"] = llm_exp
     except Exception as e:
-        pass
+        try:
+            shap_res["llm_explanation"] = _generate_fallback_explanation(
+                prob * 100,
+                risk_lvl,
+                [c for c in contributions if c.get("direction") == "increases_risk"][:3],
+                data
+            )
+        except Exception:
+            pass
 
     return shap_res
 

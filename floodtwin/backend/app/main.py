@@ -1,7 +1,18 @@
+import sys
+from pathlib import Path
+
+# Ensure floodtwin package is on sys.path
+_pkg_root = Path(__file__).resolve().parents[2]
+if str(_pkg_root) not in sys.path:
+    sys.path.insert(0, str(_pkg_root))
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api.predict import router as predict_router
+try:
+    from floodtwin.backend.app.api.predict import router as predict_router
+except ImportError:
+    from backend.app.api.predict import router as predict_router
 
 
 app = FastAPI(

@@ -1,25 +1,46 @@
 from typing import Optional, List
 from fastapi import APIRouter, Query, HTTPException
 
-from backend.app.schemas import (
-    FloodPredictionRequest,
-    FloodPredictionResponse,
-    WhatIfSimulationRequest,
-    WhatIfSimulationResponse,
-    LocalShapResponse,
-    GridResponse,
-    PriorityArea,
-    ModelMetricsResponse,
-)
-from backend.app.models.xgb_model import (
-    predict_flood_probability,
-    explain_flood_prediction,
-    simulate_whatif_scenario,
-    generate_sulawesi_grid,
-    get_priority_areas,
-    get_model_metrics_summary,
-    get_risk_level,
-)
+try:
+    from floodtwin.backend.app.schemas import (
+        FloodPredictionRequest,
+        FloodPredictionResponse,
+        WhatIfSimulationRequest,
+        WhatIfSimulationResponse,
+        LocalShapResponse,
+        GridResponse,
+        PriorityArea,
+        ModelMetricsResponse,
+    )
+    from floodtwin.backend.app.models.xgb_model import (
+        predict_flood_probability,
+        explain_flood_prediction,
+        simulate_whatif_scenario,
+        generate_sulawesi_grid,
+        get_priority_areas,
+        get_model_metrics_summary,
+        get_risk_level,
+    )
+except ImportError:
+    from backend.app.schemas import (
+        FloodPredictionRequest,
+        FloodPredictionResponse,
+        WhatIfSimulationRequest,
+        WhatIfSimulationResponse,
+        LocalShapResponse,
+        GridResponse,
+        PriorityArea,
+        ModelMetricsResponse,
+    )
+    from backend.app.models.xgb_model import (
+        predict_flood_probability,
+        explain_flood_prediction,
+        simulate_whatif_scenario,
+        generate_sulawesi_grid,
+        get_priority_areas,
+        get_model_metrics_summary,
+        get_risk_level,
+    )
 
 
 router = APIRouter(

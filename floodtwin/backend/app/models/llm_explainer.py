@@ -9,16 +9,27 @@ from google.genai import types
 logger = logging.getLogger("llm_service")
 
 def _load_env_file():
-    """Helper to auto-load .env file from workspace root if present."""
-    root_env = Path(__file__).resolve().parents[3] / ".env"
-    if root_env.exists():
-        with open(root_env, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    key, val = line.split("=", 1)
-                    if not os.getenv(key.strip()):
-                        os.environ[key.strip()] = val.strip().strip("'\"")
+    """Helper to auto-load .env file from workspace root or project dir if present."""
+    candidates = [
+        Path(__file__).resolve().parents[3] / ".env",
+        Path(__file__).resolve().parents[2] / ".env",
+        Path(__file__).resolve().parents[1] / ".env",
+        Path.cwd() / "floodtwin" / ".env",
+        Path.cwd() / ".env",
+    ]
+    for env_path in candidates:
+        if env_path.exists():
+            try:
+                from dotenv import load_dotenv
+                load_dotenv(env_path)
+            except Exception:
+                with open(env_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            key, val = line.split("=", 1)
+                            if not os.getenv(key.strip()):
+                                os.environ[key.strip()] = val.strip().strip("'\"")
 
 _load_env_file()
 
@@ -27,10 +38,10 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # Candidate models in order of preference
 GEMINI_MODELS = [
-    "gemini-3.8-flash",
-    "gemini-3.6-flash",
-    "gemini-3.5-flash",
     "gemini-3.5-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3.8-flash",
+    "gemini-2.5-flash-lite",
     "gemini-flash-latest",
 ]
 
@@ -95,6 +106,13 @@ Return a JSON object with EXACTLY these keys:
                     )
                     if res and res.text:
                         raw_text = res.text.strip()
+                        # Clean potential markdown fences
+                        if raw_text.startswith("```"):
+                            raw_text = raw_text.split("\n", 1)[1]
+                        if raw_text.endswith("```"):
+                            raw_text = raw_text.rsplit("```", 1)[0]
+                        raw_text = raw_text.strip()
+                        
                         parsed = json.loads(raw_text)
                         return {
                             "headline": parsed.get("headline", f"{risk_level.upper()} FLOOD RISK ADVISORY"),

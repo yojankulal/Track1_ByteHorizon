@@ -670,58 +670,74 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* ─── BOTTOM PANEL: Side-Nav Switcher for Briefing vs Emergency Priorities (Full Width) ─── */}
-        <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-3.5 flex gap-3.5 min-h-[360px] shrink-0 shadow-xl">
-          {/* Side Nav Rail */}
-          <div className="w-60 shrink-0 flex flex-col gap-2.5 border-r border-[#1A2C46]/60 pr-3.5">
-            <div className="text-xs font-bold uppercase tracking-wider text-[#8A9EB8] px-1">
-              Operations Center
+        {/* ─── BOTTOM PANEL: Side-Nav Switcher for Briefing vs Emergency Priorities (Full Width Hero Transition) ─── */}
+        <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-3.5 flex gap-4 min-h-[360px] shrink-0 shadow-2xl relative overflow-hidden">
+          {/* Side Nav Rail with Hero Indicator */}
+          <div className="w-64 shrink-0 flex flex-col gap-2.5 border-r border-[#1A2C46]/80 pr-4 relative">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#8A9EB8]">
+                Operations Center
+              </span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             </div>
 
+            {/* Briefing Button (Hero Style) */}
             <button
               onClick={() => setBottomSection('briefing')}
               className={clsx(
-                'p-3.5 rounded-xl border text-left transition-all flex flex-col gap-1.5',
+                'p-3.5 rounded-xl border text-left transition-all duration-300 flex flex-col gap-1.5 relative overflow-hidden group select-none',
                 bottomSection === 'briefing'
-                  ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
-                  : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742]'
+                  ? 'bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 border-blue-400 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] scale-[1.02] ring-1 ring-blue-300/40'
+                  : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742] hover:border-blue-500/40'
               )}
             >
+              {bottomSection === 'briefing' && (
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-cyan-300 shadow-[0_0_10px_#22d3ee]" />
+              )}
               <div className="flex items-center gap-2.5 font-bold text-sm">
-                <Sparkles size={16} className={bottomSection === 'briefing' ? 'text-white' : 'text-blue-400'} />
+                <Sparkles size={17} className={bottomSection === 'briefing' ? 'text-cyan-200 animate-pulse' : 'text-blue-400'} />
                 <span>Flood Mitigation Briefing</span>
               </div>
-              <span className={clsx('text-xs', bottomSection === 'briefing' ? 'text-blue-100' : 'text-[#5C85C5]')}>
-                AI Protocols & Directives
+              <span className={clsx('text-xs pl-0.5', bottomSection === 'briefing' ? 'text-blue-100 font-medium' : 'text-[#5C85C5]')}>
+                AI Directives & Voice Synthesis
               </span>
             </button>
 
+            {/* Priority Locations Button (Hero Style) */}
             <button
               onClick={() => setBottomSection('priority')}
               className={clsx(
-                'p-3.5 rounded-xl border text-left transition-all flex flex-col gap-1.5 relative',
+                'p-3.5 rounded-xl border text-left transition-all duration-300 flex flex-col gap-1.5 relative overflow-hidden group select-none',
                 bottomSection === 'priority'
-                  ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
-                  : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742]'
+                  ? 'bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-700 border-blue-400 text-white shadow-[0_0_25px_rgba(59,130,246,0.5)] scale-[1.02] ring-1 ring-blue-300/40'
+                  : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742] hover:border-red-500/40'
               )}
             >
+              {bottomSection === 'priority' && (
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-400 shadow-[0_0_10px_#f87171]" />
+              )}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5 font-bold text-sm">
-                  <AlertTriangle size={16} className={bottomSection === 'priority' ? 'text-white' : 'text-red-400'} />
+                  <AlertTriangle size={17} className={bottomSection === 'priority' ? 'text-red-300 animate-bounce' : 'text-red-400'} />
                   <span>Priority Locations</span>
                 </div>
-                <span className={clsx('text-xs font-mono px-2 py-0.5 rounded-full font-bold', bottomSection === 'priority' ? 'bg-white text-blue-700' : 'bg-red-500/20 text-red-400 border border-red-500/30')}>
+                <span className={clsx(
+                  'text-xs font-mono px-2 py-0.5 rounded-full font-bold transition-transform duration-200',
+                  bottomSection === 'priority'
+                    ? 'bg-white text-blue-700 shadow-md scale-105'
+                    : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                )}>
                   {priorities.length}
                 </span>
               </div>
-              <span className={clsx('text-xs', bottomSection === 'priority' ? 'text-blue-100' : 'text-[#5C85C5]')}>
+              <span className={clsx('text-xs pl-0.5', bottomSection === 'priority' ? 'text-blue-100 font-medium' : 'text-[#5C85C5]')}>
                 Ranked Emergency Watchlist
               </span>
             </button>
           </div>
 
-          {/* Full Width Active Section Content Pane */}
-          <div className="flex-1 min-w-0">
+          {/* Full Width Active Section Content Pane with Hero Animation */}
+          <div key={bottomSection} className="flex-1 min-w-0 animate-hero-transition">
             {bottomSection === 'briefing' ? (
               <BriefingCard
                 timelineStep={activeTimelineStep}
@@ -732,23 +748,31 @@ export default function DashboardPage() {
                 selectedCell={selectedCell}
               />
             ) : (
-              <div className="h-full flex flex-col justify-between p-1.5">
-                <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#1A2C46]">
+              <div className="h-full flex flex-col justify-between p-1.5 bg-[#081220] border border-blue-500/30 rounded-xl relative overflow-hidden shadow-2xl">
+                {/* Decorative Accent */}
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-red-500 via-orange-400 to-amber-500" />
+
+                <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[#1A2C46] pl-2">
                   <div className="flex items-center gap-2.5">
-                    <AlertTriangle size={18} className="text-red-400" />
+                    <AlertTriangle size={19} className="text-red-400" />
                     <div>
-                      <h3 className="text-base font-bold text-white">Emergency Priority Sectors</h3>
+                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                        Emergency Priority Sectors
+                        <span className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30 font-mono">
+                          Live Target Tracking
+                        </span>
+                      </h3>
                       <p className="text-xs text-[#8A9EB8]">
-                        Click any priority sector to lock onto coordinates and highlight target zone on the map.
+                        Click any priority sector to lock onto coordinates and highlight target zone with animated radar rings on the map.
                       </p>
                     </div>
                   </div>
-                  <span className="text-xs px-2.5 py-1 rounded-md bg-red-500/10 text-red-400 border border-red-500/30 font-mono font-bold">
+                  <span className="text-xs px-3 py-1 rounded-lg bg-red-500/10 text-red-400 border border-red-500/30 font-mono font-bold">
                     {activeCriticalCount} Critical Hazards Active
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 overflow-y-auto flex-1 pr-1 max-h-60">
+                <div className="grid grid-cols-2 gap-3 overflow-y-auto flex-1 pr-1 max-h-60 pl-2">
                   {priorities.map(p => {
                     const isSelected = selectedCell?.id === p.id;
                     return (
@@ -756,16 +780,19 @@ export default function DashboardPage() {
                         key={p.id}
                         onClick={() => selectPriority(p)}
                         className={clsx(
-                          'p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between select-none',
+                          'p-3.5 rounded-xl border transition-all duration-300 cursor-pointer flex items-center justify-between select-none relative overflow-hidden',
                           isSelected
-                            ? 'bg-blue-600/30 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)] ring-1 ring-blue-400'
-                            : 'bg-[#0D1B2E] border-[#1A2C46] hover:bg-[#132742] text-[#B4C6DF]'
+                            ? 'bg-gradient-to-r from-blue-600/30 to-blue-900/40 border-cyan-400 text-white shadow-[0_0_20px_rgba(6,182,212,0.4)] ring-2 ring-cyan-400 scale-[1.01]'
+                            : 'bg-[#0D1B2E] border-[#1A2C46] hover:bg-[#132742] hover:border-blue-500/40 text-[#B4C6DF]'
                         )}
                       >
+                        {isSelected && (
+                          <div className="absolute top-0 right-0 w-16 h-16 bg-cyan-400/10 rounded-full blur-xl pointer-events-none" />
+                        )}
                         <div className="flex items-center gap-3.5">
                           <span className={clsx(
-                            'w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-sm',
-                            isSelected ? 'bg-blue-500 text-white' : 'bg-[#050B14] text-red-400 border border-[#1A2C46]'
+                            'w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-sm transition-colors',
+                            isSelected ? 'bg-cyan-400 text-slate-950 font-black shadow-md' : 'bg-[#050B14] text-red-400 border border-[#1A2C46]'
                           )}>
                             #{p.rank}
                           </span>
@@ -773,7 +800,7 @@ export default function DashboardPage() {
                             <div className="font-bold text-white text-sm flex items-center gap-2">
                               <span>{p.id}</span>
                               {isSelected && (
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-400 text-slate-900 font-bold">
+                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-cyan-400 text-slate-950 font-black tracking-wide shadow-sm animate-pulse">
                                   TARGET LOCKED
                                 </span>
                               )}
@@ -969,11 +996,11 @@ export default function DashboardPage() {
 
           {/* TAB 2: AI ADVISORY & LLM SHAP EXPLANATION */}
           {rightTab === 'shap' && (
-            <div className="space-y-4">
+            <div className="space-y-4 animate-hero-transition">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Sparkles size={15} className="text-cyan-400" />
+                    <Sparkles size={16} className="text-cyan-400 animate-pulse" />
                     AI Flood Notice & Advisory
                   </h3>
                   <p className="text-xs text-[#8A9EB8]">
@@ -981,54 +1008,103 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 {selectedCell && (
-                  <span className="font-mono text-xs text-blue-400 font-bold">{selectedCell.id}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs text-blue-400 font-bold bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/30">
+                      {selectedCell.id}
+                    </span>
+                    <button
+                      onClick={() => {
+                        if (!selectedCell) return;
+                        setIsLoadingShap(true);
+                        explainFlood({
+                          lon: selectedCell.lon,
+                          lat: selectedCell.lat,
+                          precip_1d: selectedCell.precip_1d,
+                          precip_3d: selectedCell.precip_3d,
+                          landcover: selectedCell.landcover,
+                          elevation: selectedCell.elevation,
+                          slope: selectedCell.slope,
+                          TWI: selectedCell.TWI,
+                          upstream_area_log: selectedCell.upstream_area_log,
+                          aspect_sin: selectedCell.aspect_sin,
+                          aspect_cos: selectedCell.aspect_cos,
+                        })
+                          .then(data => {
+                            setShapData(data);
+                            setIsLoadingShap(false);
+                          })
+                          .catch(() => setIsLoadingShap(false));
+                      }}
+                      title="Regenerate Gemini Advisory"
+                      className="p-1.5 rounded-lg bg-[#0D1B2E] hover:bg-[#132742] border border-[#1A2C46] text-[#8A9EB8] hover:text-white transition"
+                    >
+                      <RefreshCw size={13} className={isLoadingShap ? 'animate-spin text-cyan-400' : ''} />
+                    </button>
+                  </div>
                 )}
               </div>
 
-              {isLoadingShap ? (
-                <div className="p-8 text-center text-[#8A9EB8] text-xs flex flex-col items-center gap-2">
-                  <RefreshCw size={20} className="animate-spin text-cyan-400" />
-                  Generating plain-language Gemini LLM flood notice...
+              {!selectedCell ? (
+                <div className="p-8 text-center text-[#8A9EB8] text-xs bg-[#0D1B2E] border border-[#1A2C46] rounded-xl space-y-3">
+                  <MapPin size={24} className="mx-auto text-blue-400" />
+                  <p className="text-sm font-semibold text-white">No Sector Selected</p>
+                  <p className="text-xs text-[#8A9EB8]">Click any observation point on the map or select an Emergency Priority Sector below.</p>
+                  {gridData && gridData.cells.length > 0 && (
+                    <button
+                      onClick={() => setSelectedCell(gridData.cells[0])}
+                      className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition"
+                    >
+                      Inspect Top Hazard Sector ({gridData.cells[0].id})
+                    </button>
+                  )}
+                </div>
+              ) : isLoadingShap ? (
+                <div className="p-8 text-center text-[#8A9EB8] text-xs flex flex-col items-center gap-3 bg-[#0D1B2E] border border-[#1A2C46] rounded-xl">
+                  <RefreshCw size={24} className="animate-spin text-cyan-400" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-white">Synthesizing Gemini LLM Advisory...</p>
+                    <p className="text-xs text-[#8A9EB8]">Processing SHAP feature margins & hydrological metrics for {selectedCell.id}</p>
+                  </div>
                 </div>
               ) : shapData ? (
-                <div className="space-y-3">
+                <div className="space-y-3.5">
                   {/* LLM Headline Alert Banner */}
-                  {shapData.llm_explanation && (
-                    <div className={clsx('p-3.5 rounded-xl border space-y-2.5 shadow-lg', RISK_BG_CLASSES[shapData.risk_level] || 'bg-blue-500/20 border-blue-500/40 text-blue-400')}>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-black/40 border border-current font-mono">
-                          {shapData.llm_explanation.model_used || 'Gemini LLM'}
-                        </span>
-                        <span className="text-[11px] font-mono font-bold">
-                          Prob: {shapData.flood_probability_percent}%
-                        </span>
-                      </div>
-                      <h4 className="text-xs font-bold leading-tight">
-                        {shapData.llm_explanation.headline}
-                      </h4>
+                  <div className={clsx(
+                    'p-4 rounded-xl border space-y-2 shadow-lg relative overflow-hidden',
+                    RISK_BG_CLASSES[shapData.risk_level] || 'bg-blue-500/20 border-blue-500/40 text-blue-400'
+                  )}>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded bg-black/50 border border-current font-mono">
+                        {shapData.llm_explanation?.model_used || 'Gemini LLM (Active)'}
+                      </span>
+                      <span className="text-xs font-mono font-bold">
+                        Risk Probability: {shapData.flood_probability_percent}%
+                      </span>
                     </div>
-                  )}
+                    <h4 className="text-sm font-bold leading-snug">
+                      {shapData.llm_explanation?.headline || `🚨 ${shapData.risk_level.toUpperCase()} FLOOD ALERT: High Inundation Susceptibility`}
+                    </h4>
+                  </div>
 
                   {/* Simple Language Notice */}
-                  {shapData.llm_explanation?.simple_notice && (
-                    <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3.5 space-y-2">
-                      <div className="flex items-center gap-2 text-xs font-bold text-white">
-                        <FileText size={14} className="text-blue-400" />
-                        Simplified Public Notice
-                      </div>
-                      <p className="text-xs text-[#C8D6E5] leading-relaxed font-sans">
-                        {shapData.llm_explanation.simple_notice}
-                      </p>
+                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-4 space-y-2 shadow-md">
+                    <div className="flex items-center gap-2 text-xs font-bold text-white">
+                      <FileText size={15} className="text-blue-400" />
+                      Plain Language Situation Notice
                     </div>
-                  )}
+                    <p className="text-xs text-[#CBD5E1] leading-relaxed font-sans">
+                      {shapData.llm_explanation?.simple_notice ||
+                        `This sector (${selectedCell.id}) is experiencing ${shapData.risk_level.toLowerCase()} flood risk (${shapData.flood_probability_percent}%) due to 3-day rainfall accumulation of ${selectedCell.precip_3d.toFixed(1)}mm and local elevation of ${selectedCell.elevation}m.`}
+                    </p>
+                  </div>
 
                   {/* Key Factors Tags */}
                   {shapData.llm_explanation?.key_factors && shapData.llm_explanation.key_factors.length > 0 && (
-                    <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3 space-y-2">
-                      <span className="text-[10px] font-bold text-[#8A9EB8] uppercase tracking-wider">Primary Risk Drivers</span>
-                      <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3.5 space-y-2">
+                      <span className="text-xs font-bold text-[#8A9EB8] uppercase tracking-wider">Primary Risk Drivers</span>
+                      <div className="flex flex-wrap gap-2 pt-0.5">
                         {shapData.llm_explanation.key_factors.map((kf, idx) => (
-                          <span key={idx} className="text-[11px] px-2.5 py-1 rounded-lg bg-blue-500/10 text-cyan-300 border border-blue-500/30">
+                          <span key={idx} className="text-xs px-3 py-1 rounded-lg bg-blue-500/15 text-cyan-300 border border-blue-500/30 font-medium">
                             {kf}
                           </span>
                         ))}
@@ -1037,22 +1113,27 @@ export default function DashboardPage() {
                   )}
 
                   {/* Recommended Actions */}
-                  {shapData.llm_explanation?.recommended_actions && shapData.llm_explanation.recommended_actions.length > 0 && (
-                    <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-3.5 space-y-2.5">
-                      <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                        <CheckCircle2 size={14} />
-                        Recommended Safety Actions
-                      </div>
-                      <ul className="space-y-1.5 text-xs text-[#C8D6E5]">
-                        {shapData.llm_explanation.recommended_actions.map((act, idx) => (
-                          <li key={idx} className="flex items-start gap-2 bg-[#081220] p-2 rounded-lg border border-[#1A2C46]">
-                            <span className="text-emerald-400 font-bold">•</span>
-                            <span>{act}</span>
-                          </li>
-                        ))}
-                      </ul>
+                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-xl p-4 space-y-2.5 shadow-md">
+                    <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                      <CheckCircle2 size={16} />
+                      Recommended Response Actions
                     </div>
-                  )}
+                    <ul className="space-y-2 text-xs text-[#CBD5E1]">
+                      {(shapData.llm_explanation?.recommended_actions && shapData.llm_explanation.recommended_actions.length > 0
+                        ? shapData.llm_explanation.recommended_actions
+                        : [
+                            'Prepare emergency response teams for deployment to low-elevation areas.',
+                            'Clear local drainage bottlenecks and inspect storm channels.',
+                            'Advise residents in ground-floor structures to prepare Go-Bags.',
+                          ]
+                      ).map((act, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5 bg-[#081220] p-2.5 rounded-lg border border-[#1A2C46]">
+                          <span className="text-emerald-400 font-bold text-sm">•</span>
+                          <span className="leading-snug">{act}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
                   {/* Collapsible Technical SHAP Breakdown */}
                   <div className="pt-2">
