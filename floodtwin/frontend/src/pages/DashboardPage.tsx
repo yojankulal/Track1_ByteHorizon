@@ -84,6 +84,9 @@ export default function DashboardPage() {
   // Tab view on the right panel
   const [rightTab, setRightTab] = useState<'details' | 'shap' | 'whatif' | 'performance'>('details');
 
+  // Bottom operations center view: Briefing vs Emergency Priorities (defaults to briefing)
+  const [bottomSection, setBottomSection] = useState<'briefing' | 'priority'>('briefing');
+
   const mapRef = useRef<any>(null);
 
   // Initial load
@@ -300,6 +303,28 @@ export default function DashboardPage() {
     };
   }, [hoverInfo]);
 
+  // Selected Zone Targeted Beacon GeoJSON for high-visibility focus
+  const selectedZoneGeoJSON = useMemo(() => {
+    if (!selectedCell) return null;
+    return {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: {
+            id: selectedCell.id,
+            risk_level: selectedCell.risk_level,
+            color: RISK_COLORS[selectedCell.risk_level] || '#3b82f6',
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [selectedCell.lon, selectedCell.lat],
+          },
+        },
+      ],
+    };
+  }, [selectedCell]);
+
   // Map interaction
   const onMouseMove = useCallback((e: MapLayerMouseEvent) => {
     const features = e.features;
@@ -342,7 +367,7 @@ export default function DashboardPage() {
       if (mapRef.current) {
         mapRef.current.flyTo({
           center: [found.lon, found.lat],
-          zoom: 9.5,
+          zoom: 9.8,
           duration: 1200,
         });
       }
@@ -356,7 +381,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 flex gap-3 h-full overflow-hidden p-2.5 bg-[#040B14]">
-      {/* ─── LEFT / CENTER: Map, Timeline & Bottom AI Command Center (Scrollable) ─── */}
+      {/* ─── LEFT / CENTER: Map, Timeline & Bottom Operations Center (Scrollable) ─── */}
       <div className="flex-1 flex flex-col gap-3 min-w-0 min-h-0 overflow-y-auto pr-1.5 pb-6">
         {/* Map Header Controls */}
         <div className="bg-[#081220] border border-[#1A2C46] rounded-xl px-4 py-2.5 flex items-center justify-between gap-4 shrink-0 shadow-lg">
@@ -450,6 +475,37 @@ export default function DashboardPage() {
           >
             <FullscreenControl position="top-right" />
             <NavigationControl position="bottom-right" showCompass={false} />
+
+            {/* Selected Zone High-Visibility Target Beacon & Pulse Rings */}
+            {selectedZoneGeoJSON && (
+              <Source id="selected-zone-beacon-source" type="geojson" data={selectedZoneGeoJSON as any}>
+                <Layer
+                  id="selected-beacon-pulse"
+                  type="circle"
+                  paint={{
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 28, 8, 48, 10, 72, 12, 100],
+                    'circle-color': '#38bdf8',
+                    'circle-opacity': 0.22,
+                    'circle-stroke-width': 2.5,
+                    'circle-stroke-color': '#38bdf8',
+                    'circle-stroke-opacity': 0.95,
+                    'circle-blur': 0.3,
+                  }}
+                />
+                <Layer
+                  id="selected-beacon-ring"
+                  type="circle"
+                  paint={{
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 14, 8, 24, 10, 36, 12, 50],
+                    'circle-color': '#ffffff',
+                    'circle-opacity': 0.4,
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': '#ffffff',
+                    'circle-stroke-opacity': 1,
+                  }}
+                />
+              </Source>
+            )}
 
             {/* Hovered Zone Translucent Spherical Ripple / Aura Spread */}
             {hoverGeoJSON && (
@@ -614,58 +670,130 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* ─── BOTTOM PANEL: AI Decision Briefing & Emergency Priorities ─── */}
-        <div className="grid grid-cols-12 gap-3 min-h-[320px] shrink-0">
-          {/* AI Decision Briefing with real-world suggestions */}
-          <div className="col-span-7">
-            <BriefingCard
-              timelineStep={activeTimelineStep}
-              criticalCount={activeCriticalCount}
-              highRiskCount={activeHighRiskCount}
-              totalSectors={gridData?.total_cells ?? 0}
-              maxProbability={gridData?.max_probability ?? 0.88}
-              selectedCell={selectedCell}
-            />
+        {/* ─── BOTTOM PANEL: Side-Nav Switcher for Briefing vs Emergency Priorities (Full Width) ─── */}
+        <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-3 flex gap-3 min-h-[350px] shrink-0 shadow-xl">
+          {/* Side Nav Rail */}
+          <div className="w-56 shrink-0 flex flex-col gap-2 border-r border-[#1A2C46]/60 pr-3">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[#8A9EB8] px-1">
+              Operations Center
+            </div>
+
+            <button
+              onClick={() => setBottomSection('briefing')}
+              className={clsx(
+                'p-3 rounded-xl border text-left transition-all flex flex-col gap-1',
+                bottomSection === 'briefing'
+                  ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
+                  : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742]'
+              )}
+            >
+              <div className="flex items-center gap-2 font-bold text-xs">
+                <Sparkles size={15} className={bottomSection === 'briefing' ? 'text-white' : 'text-blue-400'} />
+                <span>Flood Mitigation Briefing</span>
+              </div>
+              <span className={clsx('text-[10px]', bottomSection === 'briefing' ? 'text-blue-100' : 'text-[#5C85C5]')}>
+                AI Protocols & Directives
+              </span>
+            </button>
+
+            <button
+              onClick={() => setBottomSection('priority')}
+              className={clsx(
+                'p-3 rounded-xl border text-left transition-all flex flex-col gap-1 relative',
+                bottomSection === 'priority'
+                  ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]'
+                  : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742]'
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 font-bold text-xs">
+                  <AlertTriangle size={15} className={bottomSection === 'priority' ? 'text-white' : 'text-red-400'} />
+                  <span>Priority Locations</span>
+                </div>
+                <span className={clsx('text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold', bottomSection === 'priority' ? 'bg-white text-blue-700' : 'bg-red-500/20 text-red-400 border border-red-500/30')}>
+                  {priorities.length}
+                </span>
+              </div>
+              <span className={clsx('text-[10px]', bottomSection === 'priority' ? 'text-blue-100' : 'text-[#5C85C5]')}>
+                Ranked Emergency Watchlist
+              </span>
+            </button>
           </div>
 
-          {/* Emergency Priority Sectors */}
-          <div className="col-span-5 bg-[#081220] border border-[#1A2C46] rounded-xl p-3.5 flex flex-col shadow-lg overflow-hidden">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xs font-bold text-white flex items-center gap-2">
-                <AlertTriangle size={14} className="text-red-400" />
-                Emergency Priority Locations
-              </h3>
-              <span className="text-[10px] text-[#8A9EB8]">Click to focus on map</span>
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
-              {priorities.slice(0, 5).map(p => (
-                <div
-                  key={p.id}
-                  onClick={() => selectPriority(p)}
-                  className={clsx(
-                    'p-2 rounded-lg border transition-all cursor-pointer flex items-center justify-between text-xs',
-                    selectedCell?.id === p.id
-                      ? 'bg-blue-600/20 border-blue-500 text-white'
-                      : 'bg-[#0D1B2E] border-[#1A2C46] hover:bg-[#132742] text-[#B4C6DF]'
-                  )}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="font-mono font-bold text-red-400 text-xs">#{p.rank}</span>
+          {/* Full Width Active Section Content Pane */}
+          <div className="flex-1 min-w-0">
+            {bottomSection === 'briefing' ? (
+              <BriefingCard
+                timelineStep={activeTimelineStep}
+                criticalCount={activeCriticalCount}
+                highRiskCount={activeHighRiskCount}
+                totalSectors={gridData?.total_cells ?? 0}
+                maxProbability={gridData?.max_probability ?? 0.88}
+                selectedCell={selectedCell}
+              />
+            ) : (
+              <div className="h-full flex flex-col justify-between p-1">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1A2C46]">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle size={16} className="text-red-400" />
                     <div>
-                      <div className="font-bold text-white text-[11px]">{p.id}</div>
-                      <div className="text-[10px] text-[#8A9EB8]">{p.reason}</div>
+                      <h3 className="text-sm font-bold text-white">Emergency Priority Sectors</h3>
+                      <p className="text-[11px] text-[#8A9EB8]">
+                        Click any priority sector to lock onto coordinates and highlight target zone on the map.
+                      </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <span className={clsx('font-mono font-bold text-xs', p.risk_level === 'Critical' ? 'text-red-400' : 'text-orange-400')}>
-                      {p.flood_probability_percent}%
-                    </span>
-                    <div className="text-[9px] text-[#5C85C5] uppercase">{p.risk_level}</div>
-                  </div>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono font-bold">
+                    {activeCriticalCount} Critical Hazards Active
+                  </span>
                 </div>
-              ))}
-            </div>
+
+                <div className="grid grid-cols-2 gap-2.5 overflow-y-auto flex-1 pr-1">
+                  {priorities.map(p => {
+                    const isSelected = selectedCell?.id === p.id;
+                    return (
+                      <div
+                        key={p.id}
+                        onClick={() => selectPriority(p)}
+                        className={clsx(
+                          'p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between text-xs select-none',
+                          isSelected
+                            ? 'bg-blue-600/30 border-blue-400 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)] ring-1 ring-blue-400'
+                            : 'bg-[#0D1B2E] border-[#1A2C46] hover:bg-[#132742] text-[#B4C6DF]'
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={clsx(
+                            'w-7 h-7 rounded-lg flex items-center justify-center font-mono font-bold text-xs',
+                            isSelected ? 'bg-blue-500 text-white' : 'bg-[#050B14] text-red-400 border border-[#1A2C46]'
+                          )}>
+                            #{p.rank}
+                          </span>
+                          <div>
+                            <div className="font-bold text-white text-xs flex items-center gap-2">
+                              <span>{p.id}</span>
+                              {isSelected && (
+                                <span className="text-[9px] px-1.5 py-0.2 rounded bg-cyan-400 text-slate-900 font-bold">
+                                  TARGET LOCKED
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[10px] text-[#8A9EB8] mt-0.5">{p.reason}</div>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <span className={clsx('font-mono font-bold text-sm', p.risk_level === 'Critical' ? 'text-red-400' : 'text-orange-400')}>
+                            {p.flood_probability_percent}%
+                          </span>
+                          <div className="text-[9px] text-[#5C85C5] uppercase font-bold">{p.risk_level}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

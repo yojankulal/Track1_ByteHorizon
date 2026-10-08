@@ -230,7 +230,7 @@ export default function TimelineSlider({
                 key={step.id}
                 onClick={() => onStepChange(idx, step)}
                 className={clsx(
-                  'py-1.5 px-1 rounded-lg border text-center transition-all flex flex-col items-center justify-center relative',
+                  'py-2 px-1 rounded-lg border text-center transition-all flex flex-col items-center justify-center relative',
                   isCurrent
                     ? 'bg-blue-600 border-blue-400 text-white shadow-[0_0_12px_rgba(59,130,246,0.5)] font-bold'
                     : isPeak
@@ -238,8 +238,7 @@ export default function TimelineSlider({
                     : 'bg-[#0D1B2E] border-[#1A2C46] text-[#8A9EB8] hover:text-white hover:bg-[#132742]'
                 )}
               >
-                <div className="text-[11px] font-mono leading-tight">{step.label}</div>
-                <div className="text-[9px] opacity-75 font-sans truncate">{step.rainRate}mm/h</div>
+                <div className="text-[11px] font-mono font-medium leading-tight">{step.label}</div>
                 {isPeak && !isCurrent && (
                   <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 animate-ping" />
                 )}
