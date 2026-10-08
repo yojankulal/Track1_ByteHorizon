@@ -86,6 +86,8 @@ export interface GridCell {
   risk_level: "Low" | "Moderate" | "High" | "Critical";
   target?: number | null;
   location_name: string;
+  residing_zone_name?: string;
+  residing_zone_id?: string;
 }
 
 export interface GridResponse {
@@ -117,6 +119,8 @@ export interface PriorityArea {
   twi: number;
   reason: string;
   location_name: string;
+  residing_zone_name?: string;
+  residing_zone_id?: string;
 }
 
 export interface ModelMetricsResponse {
@@ -144,6 +148,15 @@ export interface ModelMetricsResponse {
   shap_importance: Array<{ feature: string; mean_abs_shap: number }>;
 }
 
+export interface FactorDetail {
+  score: number;
+  weight: number;
+  pct_of_total: number;
+  name: string;
+  label: string;
+  description: string;
+}
+
 export interface ResponseZone {
   zone_id: string;
   name: string;
@@ -157,7 +170,7 @@ export interface ResponseZone {
   reason: string;
   centroid: number[];
   bbox: number[];
-  factor_breakdown: Record<string, number>;
+  factor_breakdown: Record<string, any>;
   top_sectors: string[];
 }
 

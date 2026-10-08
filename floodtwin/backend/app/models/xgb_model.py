@@ -312,6 +312,11 @@ def generate_sulawesi_grid(sample_size: int = 1200) -> Dict[str, Any]:
         risk_counts[risk] = risk_counts.get(risk, 0) + 1
 
         loc_name = f"Sulawesi Sector {idx+1:04d} ({row['lat']:.2f}°, {row['lon']:.2f}°)"
+        try:
+            from floodtwin.backend.app.models.priority_engine import assign_zone_info
+        except ImportError:
+            from backend.app.models.priority_engine import assign_zone_info
+        zone_info = assign_zone_info(float(row["lat"]), float(row["lon"]))
 
         cell = {
             "id": f"SUL-{idx+1:04d}",
@@ -332,6 +337,8 @@ def generate_sulawesi_grid(sample_size: int = 1200) -> Dict[str, Any]:
             "risk_level": risk,
             "target": int(row["target"]) if "target" in row else None,
             "location_name": loc_name,
+            "residing_zone_name": zone_info["name"],
+            "residing_zone_id": zone_info["zone_id"],
         }
         cells.append(cell)
 

@@ -88,6 +88,8 @@ class GridCell(BaseModel):
     risk_level: str
     target: Optional[int] = None
     location_name: str
+    residing_zone_name: Optional[str] = None
+    residing_zone_id: Optional[str] = None
 
 
 class GridResponse(BaseModel):
@@ -114,6 +116,8 @@ class PriorityArea(BaseModel):
     twi: float
     reason: str
     location_name: str
+    residing_zone_name: Optional[str] = None
+    residing_zone_id: Optional[str] = None
     priority_score: Optional[float] = None
     priority_percent: Optional[float] = None
     rank_delta: Optional[int] = None
@@ -135,7 +139,7 @@ class ResponseZone(BaseModel):
     reason: str
     centroid: List[float]
     bbox: List[float]
-    factor_breakdown: Dict[str, float]
+    factor_breakdown: Dict[str, Any]
     top_sectors: List[str]
 
 
