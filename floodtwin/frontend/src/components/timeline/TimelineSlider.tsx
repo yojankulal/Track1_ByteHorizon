@@ -375,11 +375,6 @@ export default function TimelineSlider({
             </div>
           )}
         </div>
-
-        {/* Narrative forecast preview */}
-        <div className="text-[11px] text-[#B4C6DF] truncate max-w-lg hidden md:block italic">
-          "{currentStep.summary}"
-        </div>
       </div>
     </div>
   );

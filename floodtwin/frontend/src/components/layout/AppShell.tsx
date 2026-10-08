@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Waves, LayoutDashboard, Bell, ListOrdered, Wind, Sun, Moon } from 'lucide-react';
+import { Waves, LayoutDashboard, Bell, ListOrdered, Sun, Moon } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { checkApiHealth } from '../../lib/api-client';
 import clsx from 'clsx';
@@ -53,10 +53,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <Waves size={20} className="text-white" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-base leading-tight tracking-wide" style={{ color: 'var(--text-primary)' }}>FloodTwin</span>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 border border-blue-500/30">AI TWIN</span>
-            </div>
+            <div className="font-bold text-base leading-tight tracking-wide" style={{ color: 'var(--text-primary)' }}>FloodTwin</div>
             <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Coastal Flood Intelligence</div>
           </div>
         </div>
@@ -89,48 +86,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        <div className="h-8 w-px mx-2 hidden md:block" style={{ backgroundColor: 'var(--border)' }} />
-
-        {/* Cyclone Status Card Container */}
-        <div
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg border text-xs"
-          style={{
-            backgroundColor: isDark ? 'var(--bg-input)' : '#FFFBEB',
-            borderColor: isDark ? 'var(--border)' : '#FDE68A',
-          }}
-        >
-          <Wind size={18} className="text-amber-500 shrink-0" />
-          <div className="flex flex-col">
-            <div className="text-[9px] font-bold uppercase tracking-wider text-amber-600">Cyclone Status</div>
-            <div className="text-xs font-bold text-amber-600">ACTIVE · 'Midhili' 320 km W</div>
-          </div>
-        </div>
-
-        <div className="h-8 w-px mx-2 hidden md:block" style={{ backgroundColor: 'var(--border)' }} />
-
-        {/* Tide Level Widget Card */}
-        <div
-          className="flex items-center gap-3 px-3 py-1.5 rounded-lg border min-w-[150px]"
-          style={{
-            backgroundColor: isDark ? 'var(--bg-input)' : '#FFFFFF',
-            borderColor: 'var(--border)',
-          }}
-        >
-          <Waves size={18} className="text-blue-500 shrink-0" />
-          <div className="flex-1">
-            <div className="flex justify-between text-[10px] mb-0.5" style={{ color: 'var(--text-muted)' }}>
-              <span>Tide Level</span>
-              <span className="font-bold" style={{ color: 'var(--text-primary)' }}>
-                2.8 m <span className="text-blue-500 font-normal">↑</span>
-              </span>
-            </div>
-            <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--border)' }}>
-              <div className="h-full bg-blue-600 w-[56%]" />
-            </div>
-          </div>
-        </div>
-
-        <div className="h-8 w-px mx-2 hidden md:block" style={{ backgroundColor: 'var(--border)' }} />
+        {/* Right Action Controls */}
+        <div className="flex items-center gap-3">
 
         {/* ── Theme Toggle Button ── */}
         <button
@@ -163,6 +120,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         >
           <div className={clsx('w-2 h-2 rounded-full', apiOnline ? 'bg-emerald-500 animate-pulse' : 'bg-red-500')} />
           {apiOnline ? 'Online' : 'Offline'}
+        </div>
         </div>
       </header>
 

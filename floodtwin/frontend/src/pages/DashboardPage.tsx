@@ -822,10 +822,6 @@ export default function DashboardPage() {
                     <div className="text-sm font-bold text-white font-mono">{selectedCell.upstream_area_log.toFixed(2)}</div>
                   </div>
                   <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5">
-                    <div className="text-[10px] text-[#8A9EB8]">Landcover Class</div>
-                    <div className="text-sm font-bold text-white">Class #{selectedCell.landcover}</div>
-                  </div>
-                  <div className="bg-[#0D1B2E] border border-[#1A2C46] rounded-lg p-2.5">
                     <div className="text-[10px] text-[#8A9EB8]">Coordinates</div>
                     <div className="text-[11px] font-mono text-[#5C85C5]">{selectedCell.lat.toFixed(3)}°, {selectedCell.lon.toFixed(3)}°</div>
                   </div>
