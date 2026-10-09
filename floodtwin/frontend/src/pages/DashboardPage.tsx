@@ -867,7 +867,7 @@ export default function DashboardPage() {
               <div className="w-3 h-3 rounded-full animate-ping" style={{ backgroundColor: currentRiskColor }} />
               <div>
                 <div className="text-xs text-[#8A9EB8]">Selected Focus:</div>
-                <div className="text-sm font-bold text-white">{selectedCell.location_name}</div>
+                <div className="text-sm font-bold text-white">{selectedCell.location_name.replace(/\s*\([^)]*°[^)]*\)/, '')}</div>
               </div>
               <span className={clsx('text-xs font-bold px-2.5 py-1 rounded-full border', RISK_BG_CLASSES[selectedCell.risk_level])}>
                 {selectedCell.risk_level} • {selectedCell.flood_probability_percent}%
@@ -1139,7 +1139,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center justify-between text-[#8A9EB8]">
                 <span>Critical Hazards</span>
-                <span className="font-mono font-bold text-red-400">{activeCriticalCount} Sectors</span>
+                <span className="font-mono font-bold text-red-400">{activeCriticalCount} Zones</span>
               </div>
             </div>
           </div>
@@ -1165,13 +1165,13 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-                        Emergency Priority Sectors
+                        Emergency Priority Zones
                         <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30">
-                          {priorities.length} High-Risk Zones
+                          {priorities.length} Priority Zones
                         </span>
                       </h3>
                       <p className="text-xs text-[#8A9EB8]">
-                        Click any priority sector card below to lock radar targeting on the Sulawesi map.
+                        Click any priority zone card below to lock radar targeting on the Sulawesi map.
                       </p>
                     </div>
                   </div>
@@ -1181,7 +1181,7 @@ export default function DashboardPage() {
                   </span>
                 </div>
 
-                {/* Priority Sectors Grid */}
+                {/* Priority Zones Grid */}
                 <div className="grid grid-cols-2 gap-2.5 overflow-y-auto flex-1 pr-1">
                   {priorities.map(p => {
                     const isSelected = selectedCell?.id === p.id;
@@ -1210,7 +1210,7 @@ export default function DashboardPage() {
                             </span>
                             <div>
                               <div className="font-bold text-white text-sm flex items-center gap-2">
-                                <span>{p.id}</span>
+                                <span>Zone {p.id}</span>
                                 {isSelected ? (
                                   <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-400 text-slate-950 font-black tracking-wide flex items-center gap-1 shadow-sm">
                                     <Target size={11} /> TARGET LOCKED
@@ -1220,6 +1220,9 @@ export default function DashboardPage() {
                                     {p.lat.toFixed(2)}°, {p.lon.toFixed(2)}°
                                   </span>
                                 )}
+                              </div>
+                              <div className="text-[11px] font-semibold text-cyan-400/90 mt-0.5">
+                                Contributing to: {p.residing_zone_name || 'Regional Sector'}
                               </div>
                               <div className="text-xs text-[#8A9EB8] mt-0.5 leading-snug">{p.reason}</div>
                             </div>
@@ -1358,14 +1361,10 @@ export default function DashboardPage() {
                       {selectedCell.risk_level}
                     </span>
                   </div>
-                  <h3 className="text-sm font-bold text-white">{selectedCell.location_name}</h3>
+                  <h3 className="text-sm font-bold text-white">{selectedCell.location_name.replace(/\s*\([^)]*°[^)]*\)/, '')}</h3>
                   <div className="flex items-center gap-1.5 text-xs text-purple-300 font-semibold bg-purple-500/15 border border-purple-500/30 px-2.5 py-1 rounded-lg w-fit">
                     <Compass size={13} className="text-purple-400" />
-                    <span>Zone: {selectedCell.residing_zone_name || 'Maros Coastal Defense Zone'} ({selectedCell.residing_zone_id || 'ZONE-01'})</span>
-                  </div>
-                  <div className="text-xs text-[#8A9EB8] flex items-center gap-1.5">
-                    <Clock size={13} className="text-cyan-400" />
-                    Event Date: <span className="text-white font-mono">{selectedCell.event_id ?? 'Historical Set'}</span>
+                    <span>Sector: {selectedCell.residing_zone_name || 'Maros Coastal Defense Sector'}</span>
                   </div>
                 </div>
               </div>
@@ -1480,14 +1479,14 @@ export default function DashboardPage() {
               {!selectedCell ? (
                 <div className="p-8 text-center text-[#8A9EB8] text-xs bg-[#0D1B2E] border border-[#1A2C46] rounded-xl space-y-3">
                   <MapPin size={24} className="mx-auto text-blue-400" />
-                  <p className="text-sm font-semibold text-white">No Sector Selected</p>
-                  <p className="text-xs text-[#8A9EB8]">Click any observation point on the map or select an Emergency Priority Sector below.</p>
+                  <p className="text-sm font-semibold text-white">No Zone Selected</p>
+                  <p className="text-xs text-[#8A9EB8]">Click any observation point on the map or select an Emergency Priority Zone below.</p>
                   {gridData && gridData.cells.length > 0 && (
                     <button
                       onClick={() => setSelectedCell(gridData.cells[0])}
                       className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition"
                     >
-                      Inspect Top Hazard Sector ({gridData.cells[0].id})
+                      Inspect Top Hazard Zone ({gridData.cells[0].id})
                     </button>
                   )}
                 </div>

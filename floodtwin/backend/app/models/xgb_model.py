@@ -305,11 +305,12 @@ def classify_sensitivity(tip: float) -> str:
     return "Resilient"
 
 
-def generate_sulawesi_grid(sample_size: int = 1200) -> Dict[str, Any]:
+def generate_sulawesi_grid(sample_size: int = 1200, **kwargs) -> Dict[str, Any]:
     """
     Generate a deterministic, scientifically representative spatial grid
     from real Sulawesi MODIS observations across flood & non-flood regions.
     """
+    sample_size = kwargs.get("n_cells", sample_size)
     global _grid_cache
     if _grid_cache is not None and len(_grid_cache.get("cells", [])) == sample_size:
         return _grid_cache
@@ -349,7 +350,7 @@ def generate_sulawesi_grid(sample_size: int = 1200) -> Dict[str, Any]:
         risk = get_risk_level(prob)
         risk_counts[risk] = risk_counts.get(risk, 0) + 1
 
-        loc_name = f"Sulawesi Sector {idx+1:04d} ({row['lat']:.2f}°, {row['lon']:.2f}°)"
+        loc_name = f"Sulawesi Zone {idx+1:04d}"
         try:
             from floodtwin.backend.app.models.priority_engine import assign_zone_info
         except ImportError:

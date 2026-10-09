@@ -154,16 +154,16 @@ export default function WhatIfPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">What-If Flood Simulator</h1>
-            <p className="text-xs text-[#8A9EB8]">Hydrological Scenario Modeling on Real Sulawesi Sectors</p>
+            <p className="text-xs text-[#8A9EB8]">Hydrological Scenario Modeling on Real Sulawesi Zones</p>
           </div>
         </div>
 
         <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-5 space-y-5 shadow-xl">
-          {/* Sector Selector */}
+          {/* Zone Selector */}
           <div>
             <label className="text-xs font-semibold text-white block mb-1.5 flex items-center justify-between">
-              <span>Select Target Sector:</span>
-              <span className="text-[10px] text-blue-400">{sectors.length} sectors</span>
+              <span>Select Target Zone:</span>
+              <span className="text-[10px] text-blue-400">{sectors.length} zones</span>
             </label>
             <select
               value={selectedSector?.id ?? ''}

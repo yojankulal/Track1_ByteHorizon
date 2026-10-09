@@ -100,37 +100,37 @@ CRITICAL_INFRASTRUCTURE = [
     },
 ]
 
-# Geographic Zone Reference Centroids for South Sulawesi
+# Geographic Regional Sector Reference Centroids for South Sulawesi
 ZONE_CENTROIDS = [
-    {"name": "Maros Coastal Defense Zone", "lat": -5.00, "lon": 119.55},
-    {"name": "Makassar North Medical Corridor", "lat": -5.13, "lon": 119.45},
-    {"name": "Pangkep Lowland Agricultural Corridor", "lat": -4.80, "lon": 119.55},
-    {"name": "Tallo River Estuary Basin", "lat": -5.11, "lon": 119.44},
-    {"name": "Tanete Rilau Coastal Lowlands", "lat": -4.58, "lon": 119.60},
-    {"name": "Gowa Lowland Catchment Zone", "lat": -5.25, "lon": 119.50},
-    {"name": "Barru Coastal Strip Corridor", "lat": -4.30, "lon": 119.65},
-    {"name": "Jeneponto Delta Basin", "lat": -5.65, "lon": 119.72},
-    {"name": "Takalar Coastal Fishery Belt", "lat": -5.40, "lon": 119.45},
-    {"name": "Bone Lowland River Basin", "lat": -4.65, "lon": 120.10},
-    {"name": "Sidrap Lake Tempe Basin", "lat": -3.95, "lon": 119.95},
-    {"name": "Pinrang Agricultural Plain", "lat": -3.80, "lon": 119.65},
-    {"name": "Parepare Maritime River Corridor", "lat": -4.00, "lon": 119.62},
-    {"name": "Wajo Floodplain Delta", "lat": -4.12, "lon": 120.03},
-    {"name": "Soppeng Valley Basin", "lat": -4.35, "lon": 119.88},
+    {"name": "Maros Coastal Defense Sector", "lat": -5.00, "lon": 119.55},
+    {"name": "Makassar North Medical Sector", "lat": -5.13, "lon": 119.45},
+    {"name": "Pangkep Lowland Agricultural Sector", "lat": -4.80, "lon": 119.55},
+    {"name": "Tallo River Estuary Sector", "lat": -5.11, "lon": 119.44},
+    {"name": "Tanete Rilau Coastal Lowland Sector", "lat": -4.58, "lon": 119.60},
+    {"name": "Gowa Lowland Catchment Sector", "lat": -5.25, "lon": 119.50},
+    {"name": "Barru Coastal Strip Sector", "lat": -4.30, "lon": 119.65},
+    {"name": "Jeneponto Delta Sector", "lat": -5.65, "lon": 119.72},
+    {"name": "Takalar Coastal Fishery Sector", "lat": -5.40, "lon": 119.45},
+    {"name": "Bone Lowland River Sector", "lat": -4.65, "lon": 120.10},
+    {"name": "Sidrap Lake Tempe Sector", "lat": -3.95, "lon": 119.95},
+    {"name": "Pinrang Agricultural Plain Sector", "lat": -3.80, "lon": 119.65},
+    {"name": "Parepare Maritime River Sector", "lat": -4.00, "lon": 119.62},
+    {"name": "Wajo Floodplain Delta Sector", "lat": -4.12, "lon": 120.03},
+    {"name": "Soppeng Valley Basin Sector", "lat": -4.35, "lon": 119.88},
 ]
 
 
 def assign_zone_info(lat: float, lon: float, idx: int = 1) -> Dict[str, str]:
-    """Map coordinates to the closest named response zone and return zone metadata."""
+    """Map coordinates to the closest named response sector and return sector metadata."""
     nearest_idx, nearest = min(enumerate(ZONE_CENTROIDS, start=1), key=lambda z: haversine_km(lat, lon, z[1]["lat"], z[1]["lon"]))
     return {
-        "zone_id": f"ZONE-{nearest_idx:02d}",
+        "zone_id": f"SEC-{nearest_idx:02d}",
         "name": nearest["name"],
     }
 
 
 def assign_zone_name(lat: float, lon: float, idx: int = 1) -> str:
-    """Map coordinates to the closest named response zone in South Sulawesi."""
+    """Map coordinates to the closest named response sector in South Sulawesi."""
     return assign_zone_info(lat, lon, idx)["name"]
 
 
@@ -477,11 +477,14 @@ def calculate_multi_factor_priorities(cells: List[Dict[str, Any]], top_n: int = 
         priority_score = round(0.40 * p + 0.25 * e + 0.20 * a + 0.15 * crit, 4)
         priority_percent = round(priority_score * 100, 1)
 
+        sector_info = assign_zone_info(c["lat"], c["lon"])
         enriched_cells.append({
             "id": c["id"],
             "lon": c["lon"],
             "lat": c["lat"],
-            "location_name": c.get("location_name", f"Sector {c['id']}"),
+            "location_name": c.get("location_name", f"Zone {c['id']}"),
+            "residing_zone_name": sector_info["name"],
+            "residing_zone_id": sector_info["zone_id"],
             "elevation": c.get("elevation", 10.0),
             "precip_3d": c.get("precip_3d", 30.0),
             "landcover": c.get("landcover", 1.0),
@@ -534,6 +537,8 @@ def calculate_multi_factor_priorities(cells: List[Dict[str, Any]], top_n: int = 
             "lon": item["lon"],
             "lat": item["lat"],
             "location_name": item["location_name"],
+            "residing_zone_name": item.get("residing_zone_name"),
+            "residing_zone_id": item.get("residing_zone_id"),
             "flood_probability": item["flood_probability"],
             "flood_probability_percent": item["flood_probability_percent"],
             "risk_level": item["risk_level"],

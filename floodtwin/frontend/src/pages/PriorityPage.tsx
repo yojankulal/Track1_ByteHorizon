@@ -46,7 +46,7 @@ export default function PriorityPage() {
         {/* Table Header */}
         <div className="grid grid-cols-12 px-5 py-3 bg-[#050B14] border-b border-[#1A2C46] text-[11px] font-bold text-[#5C85C5] uppercase tracking-wider">
           <div className="col-span-1 text-center">Rank</div>
-          <div className="col-span-3">Zone & Sectors</div>
+          <div className="col-span-3">Sector & Contributing Zones</div>
           <div className="col-span-2">Priority Score</div>
           <div className="col-span-3">Factor Breakdown</div>
           <div className="col-span-3">Reason</div>
@@ -73,7 +73,7 @@ export default function PriorityPage() {
                   <div className="col-span-3">
                     <div className="font-bold text-white text-sm">{z.name}</div>
                     <div className="text-[11px] font-mono text-[#5C85C5] flex items-center gap-1 mt-1">
-                      <Map size={11} /> {z.sector_count} Sectors • <Compass size={11}/> {z.centroid[1].toFixed(3)}°S, {z.centroid[0].toFixed(3)}°E
+                      <Map size={11} /> {z.sector_count} Contributing Zones • <Compass size={11}/> {z.centroid[1].toFixed(3)}°S, {z.centroid[0].toFixed(3)}°E
                     </div>
                     <div className={clsx('text-[10px] mt-1 font-bold', z.rank_delta > 0 ? 'text-emerald-400' : z.rank_delta < 0 ? 'text-red-400' : 'text-[#8A9EB8]')}>
                       {z.rank_delta_label}
@@ -96,7 +96,7 @@ export default function PriorityPage() {
                     <div className="flex justify-between text-[10px] font-semibold text-[#8A9EB8] mb-1 tracking-tight">
                       <span className="text-sky-400" title="Inundation Risk (40% Weight): Machine learning forecast model prediction of surface water hazard from terrain topography & rainfall">Risk (40%)</span>
                       <span className="text-amber-400" title="Asset Exposure (25% Weight): Land cover vulnerability assessing urban settlements and agricultural cropland at risk">Exposure (25%)</span>
-                      <span className="text-purple-400" title="Road Isolation (20% Weight): Access cut-off risk from surrounding flooded sectors within 2km radius">Isolation (20%)</span>
+                      <span className="text-purple-400" title="Road Isolation (20% Weight): Access cut-off risk from surrounding flooded zones within 2km radius">Isolation (20%)</span>
                       <span className="text-rose-400" title="Lifeline Threat (15% Weight): Proximity threat to referral hospitals, trauma centers & disaster hubs">Lifeline (15%)</span>
                     </div>
                     {(() => {
