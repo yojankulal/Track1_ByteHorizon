@@ -19,6 +19,8 @@ import clsx from 'clsx';
 import TimelineSlider, { TIMELINE_STEPS } from '../components/timeline/TimelineSlider';
 import BriefingCard from '../components/briefing/BriefingCard';
 import { TippingPointCard, TIP_COLORS } from '../components/TippingPointCard';
+import { ZonePanel } from '../components/zone/ZonePanel';
+import { useTemporalForecast } from '../hooks/use-temporal-forecast';
 
 const RISK_COLORS: Record<string, string> = {
   Low: '#10b981',
@@ -57,6 +59,7 @@ export default function DashboardPage() {
   const [priorities, setPriorities] = useState<PriorityArea[]>([]);
   const [metrics, setMetrics] = useState<ModelMetricsResponse | null>(null);
   const [selectedCell, setSelectedCell] = useState<GridCell | null>(null);
+  const { forecast: temporalForecast, loading: temporalLoading } = useTemporalForecast(selectedCell?.id);
   const [shapData, setShapData] = useState<LocalShapResponse | null>(null);
   const [isLoadingShap, setIsLoadingShap] = useState(false);
   const [showTechShap, setShowTechShap] = useState(false);
@@ -1203,6 +1206,9 @@ export default function DashboardPage() {
                 </div>
                 <div className="mt-2.5">
                   <TippingPointCard cell={selectedCell} />
+                </div>
+                <div className="mt-3">
+                  <ZonePanel forecast={temporalForecast} loading={temporalLoading} />
                 </div>
               </div>
 

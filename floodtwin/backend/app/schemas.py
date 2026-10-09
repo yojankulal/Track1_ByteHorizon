@@ -175,4 +175,40 @@ class ModelMetricsResponse(BaseModel):
     threshold: float
     metrics: Dict[str, Any]
     feature_importance: List[Dict[str, Any]]
-    shap_importance: List[Dict[str, Any]]
+    shap_importance: List[Dict[str, Any]]
+
+
+class HourlyForecastPoint(BaseModel):
+    hour: int
+    time_label: str
+    probability: float
+    probability_percent: float
+    q10_probability_percent: float
+    q90_probability_percent: float
+    water_level_m: float
+    water_level_q10: float
+    water_level_q90: float
+    rainfall_rate_mm: float
+    risk_level: str
+    is_onset: bool
+    is_peak: bool
+
+
+class TemporalForecastResponse(BaseModel):
+    sector_id: str
+    location_name: str
+    model_used: str
+    horizon_hours: int
+    current_probability: float
+    current_probability_percent: float
+    onset_hour: Optional[int] = None
+    onset_str: str
+    onset_range: str
+    onset_status: str
+    peak_hour: int
+    peak_str: str
+    peak_range: str
+    peak_probability: float
+    peak_probability_percent: float
+    hourly_series: List[HourlyForecastPoint]
+

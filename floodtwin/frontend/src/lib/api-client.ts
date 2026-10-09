@@ -402,3 +402,53 @@ export function computePhysicalHydrologicalSimulation(
     explanation: expl,
   };
 }
+
+export interface HourlyForecastPoint {
+  hour: number;
+  time_label: string;
+  probability: number;
+  probability_percent: number;
+  q10_probability_percent: number;
+  q90_probability_percent: number;
+  water_level_m: number;
+  water_level_q10: number;
+  water_level_q90: number;
+  rainfall_rate_mm: number;
+  risk_level: string;
+  is_onset: boolean;
+  is_peak: boolean;
+}
+
+export interface TemporalForecastResponse {
+  sector_id: string;
+  location_name: string;
+  model_used: string;
+  horizon_hours: number;
+  current_probability: number;
+  current_probability_percent: number;
+  onset_hour?: number | null;
+  onset_str: string;
+  onset_range: string;
+  onset_status: string;
+  peak_hour: number;
+  peak_str: string;
+  peak_range: string;
+  peak_probability: number;
+  peak_probability_percent: number;
+  hourly_series: HourlyForecastPoint[];
+}
+
+export async function fetchTemporalForecast(
+  sectorId?: string,
+  horizonHours: number = 24
+): Promise<TemporalForecastResponse> {
+  const url = sectorId
+    ? `${API_BASE_URL}/temporal/forecast/${sectorId}?horizon_hours=${horizonHours}`
+    : `${API_BASE_URL}/temporal/forecast?horizon_hours=${horizonHours}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Temporal forecast error (${response.status}): ${err}`);
+  }
+  return response.json();
+}
