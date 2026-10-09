@@ -4,7 +4,7 @@ import {
   TrendingUp, Sliders, RefreshCw, BarChart3,
   Layers, Compass, Mountain, ArrowUpRight, ArrowDownRight, Filter, Clock,
   Sparkles, CheckCircle2, ChevronDown, ChevronUp, FileText,
-  Shield, Crosshair, Target, Building2, Map as MapIcon
+  Shield, Crosshair, Target, Map as MapIcon
 } from 'lucide-react';
 import Map, { Source, Layer, NavigationControl, FullscreenControl, MapLayerMouseEvent, Marker } from 'react-map-gl/maplibre';
 import {
