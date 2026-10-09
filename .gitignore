@@ -69,26 +69,4 @@ data/
 *.zip
 *.7z
 
-# Model weights & binaries
-models/*.pkl
-models/*.joblib
-models/*.bin
-models/*.pt
-models/*.pth
-models/*.onnx
-**/models/*.pkl
-**/models/*.joblib
-**/models/*.bin
-**/models/*.pt
-**/models/*.pth
-**/models/*.onnx
 
-# IDEs and OS files
-.DS_Store
-Thumbs.db
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.system_generated/
