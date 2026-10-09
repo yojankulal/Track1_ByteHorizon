@@ -98,6 +98,23 @@ export default function DashboardPage() {
   const [bottomSection, setBottomSection] = useState<'briefing' | 'priority'>('briefing');
 
   const mapRef = useRef<any>(null);
+  const [showLayersMenu, setShowLayersMenu] = useState<boolean>(false);
+  const layersMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close layers menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (layersMenuRef.current && !layersMenuRef.current.contains(event.target as Node)) {
+        setShowLayersMenu(false);
+      }
+    }
+    if (showLayersMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showLayersMenu]);
 
   // Initial load
   useEffect(() => {
@@ -449,34 +466,6 @@ export default function DashboardPage() {
                 </select>
               </div>
             )}
-
-            {/* Infrastructure Toggle */}
-            <div className="flex items-center gap-1.5 text-xs text-[#8A9EB8] ml-2 pl-2 border-l border-[#1A2C46]">
-              <MapIcon size={13} className={showInfra ? "text-green-400" : "text-gray-500"} />
-              <button 
-                onClick={() => setShowInfra(!showInfra)}
-                className={clsx(
-                  "px-2.5 py-1 rounded-lg border transition-colors",
-                  showInfra ? "bg-green-500/20 text-green-400 border-green-500/40" : "bg-[#0D1B2E] text-gray-400 border-[#1A2C46] hover:bg-[#15253e]"
-                )}
-              >
-                {showInfra ? 'Infra: ON' : 'Infra: OFF'}
-              </button>
-            </div>
-
-            {/* Rainfall Sensitivity Toggle */}
-            <div className="flex items-center gap-1.5 text-xs text-[#8A9EB8] ml-2 pl-2 border-l border-[#1A2C46]">
-              <Sliders size={13} className={showSensitivity ? "text-purple-400" : "text-gray-500"} />
-              <button 
-                onClick={() => setShowSensitivity(!showSensitivity)}
-                className={clsx(
-                  "px-2.5 py-1 rounded-lg border transition-colors",
-                  showSensitivity ? "bg-purple-500/20 text-purple-400 border-purple-500/40 font-bold" : "bg-[#0D1B2E] text-gray-400 border-[#1A2C46] hover:bg-[#15253e]"
-                )}
-              >
-                {showSensitivity ? 'Sensitivity: ON' : 'Sensitivity: OFF'}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -515,7 +504,7 @@ export default function DashboardPage() {
             onMouseLeave={onMouseLeave}
             onClick={onMapClick}
           >
-            <FullscreenControl position="top-right" />
+            <FullscreenControl position="bottom-right" />
             <NavigationControl position="bottom-right" showCompass={false} />
 
             {/* Selected Zone High-Visibility Target Beacon & Pulse Rings */}
@@ -862,7 +851,7 @@ export default function DashboardPage() {
 
           {/* Quick Selected Highlight Badge on Map */}
           {selectedCell && (
-            <div className="absolute top-4 left-4 bg-[#081220]/95 backdrop-blur-md border border-blue-500/50 rounded-xl px-4 py-2.5 shadow-2xl flex items-center gap-3">
+            <div className="absolute top-4 left-4 bg-[#081220]/95 backdrop-blur-md border border-blue-500/50 rounded-xl px-4 py-2.5 shadow-2xl flex items-center gap-3 z-10">
               <div className="w-3 h-3 rounded-full animate-ping" style={{ backgroundColor: currentRiskColor }} />
               <div>
                 <div className="text-xs text-[#8A9EB8]">Selected Focus:</div>
@@ -873,6 +862,108 @@ export default function DashboardPage() {
               </span>
             </div>
           )}
+
+          {/* Top Right Map Layers Button & Popover */}
+          <div ref={layersMenuRef} className="absolute top-4 right-4 z-20">
+            <button
+              type="button"
+              onClick={() => setShowLayersMenu(!showLayersMenu)}
+              className={clsx(
+                "flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-2xl transition-all backdrop-blur-md",
+                showLayersMenu
+                  ? "bg-[#0D1B2E] text-white border-cyan-400 shadow-cyan-950/50"
+                  : (showInfra || showSensitivity)
+                    ? "bg-[#081220]/95 text-white border-cyan-500/50 hover:bg-[#0D1B2E]"
+                    : "bg-[#081220]/90 text-[#8A9EB8] border-[#1A2C46] hover:text-white hover:border-[#2A3C56] hover:bg-[#0D1B2E]"
+              )}
+              title="Map Layers"
+            >
+              <Layers size={14} className={showLayersMenu || showInfra || showSensitivity ? "text-cyan-400" : "text-[#8A9EB8]"} />
+              <span>Layers</span>
+              {(showInfra || showSensitivity) && (
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]" />
+              )}
+            </button>
+
+            {/* Dropdown Menu */}
+            {showLayersMenu && (
+              <div className="absolute right-0 top-10 w-72 rounded-xl bg-[#081220]/95 backdrop-blur-md border border-[#1A2C46] p-3 shadow-2xl space-y-2.5 z-30">
+                <div className="flex items-center justify-between pb-2 border-b border-[#1A2C46] text-xs font-bold text-white">
+                  <span className="flex items-center gap-1.5">
+                    <Layers size={13} className="text-cyan-400" />
+                    Map Layers
+                  </span>
+                  <span className="text-[10px] font-mono text-[#5C85C5] font-normal">
+                    {[showInfra ? '1' : null, showSensitivity ? '1' : null].filter(Boolean).length} Active
+                  </span>
+                </div>
+
+                {/* Layer 1: Infrastructure */}
+                <div 
+                  onClick={() => setShowInfra(!showInfra)}
+                  className="p-2.5 rounded-lg bg-[#050B14]/80 border border-[#1A2C46] hover:border-emerald-500/40 transition cursor-pointer flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className={clsx(
+                      "w-7 h-7 rounded-lg flex items-center justify-center transition-colors",
+                      showInfra ? "bg-emerald-500/20 text-emerald-400" : "bg-[#0D1B2E] text-gray-500"
+                    )}>
+                      <MapIcon size={14} />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-white group-hover:text-emerald-300 transition-colors">
+                        Infrastructure
+                      </div>
+                      <div className="text-[10px] text-[#8A9EB8]">Roads, hospitals, evac hubs</div>
+                    </div>
+                  </div>
+
+                  {/* Toggle Switch */}
+                  <div className={clsx(
+                    "w-9 h-5 rounded-full p-0.5 transition-colors relative flex items-center",
+                    showInfra ? "bg-emerald-500" : "bg-[#1A2C46]"
+                  )}>
+                    <div className={clsx(
+                      "w-4 h-4 rounded-full bg-white transition-transform shadow-md",
+                      showInfra ? "translate-x-4" : "translate-x-0"
+                    )} />
+                  </div>
+                </div>
+
+                {/* Layer 2: Rainfall Sensitivity */}
+                <div 
+                  onClick={() => setShowSensitivity(!showSensitivity)}
+                  className="p-2.5 rounded-lg bg-[#050B14]/80 border border-[#1A2C46] hover:border-purple-500/40 transition cursor-pointer flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className={clsx(
+                      "w-7 h-7 rounded-lg flex items-center justify-center transition-colors",
+                      showSensitivity ? "bg-purple-500/20 text-purple-400" : "bg-[#0D1B2E] text-gray-500"
+                    )}>
+                      <Sliders size={14} />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors">
+                        Rainfall Sensitivity
+                      </div>
+                      <div className="text-[10px] text-[#8A9EB8]">Model tipping point bands</div>
+                    </div>
+                  </div>
+
+                  {/* Toggle Switch */}
+                  <div className={clsx(
+                    "w-9 h-5 rounded-full p-0.5 transition-colors relative flex items-center",
+                    showSensitivity ? "bg-purple-500" : "bg-[#1A2C46]"
+                  )}>
+                    <div className={clsx(
+                      "w-4 h-4 rounded-full bg-white transition-transform shadow-md",
+                      showSensitivity ? "translate-x-4" : "translate-x-0"
+                    )} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* ─── BOTTOM PANEL: Beautified Operations Center Side-Nav Rail & Workspace ─── */}
