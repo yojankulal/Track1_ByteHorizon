@@ -4,12 +4,12 @@ import {
   TrendingUp, Sliders, RefreshCw, BarChart3,
   Layers, Compass, Mountain, ArrowUpRight, ArrowDownRight, Filter, Clock,
   Sparkles, CheckCircle2, ChevronDown, ChevronUp, FileText,
-  Shield, Crosshair, Target
+  Shield, Crosshair, Target, Building2, Map as MapIcon
 } from 'lucide-react';
-import Map, { Source, Layer, NavigationControl, FullscreenControl, MapLayerMouseEvent } from 'react-map-gl/maplibre';
+import Map, { Source, Layer, NavigationControl, FullscreenControl, MapLayerMouseEvent, Marker } from 'react-map-gl/maplibre';
 import {
   checkApiHealth, fetchGrid, fetchPriorities, explainFlood, simulateScenario,
-  computePhysicalHydrologicalSimulation, fetchModelMetrics
+  computePhysicalHydrologicalSimulation, fetchModelMetrics, fetchInfrastructure
 } from '../lib/api-client';
 import type {
   GridCell, GridResponse, PriorityArea, LocalShapResponse, ModelMetricsResponse
@@ -64,6 +64,10 @@ export default function DashboardPage() {
   const [selectedEvent, setSelectedEvent] = useState<string>('ALL');
   const [riskFilter, setRiskFilter] = useState<string>('ALL');
 
+  // Infrastructure Data
+  const [infraData, setInfraData] = useState<{roads: any, buildings: any, facilities: any} | null>(null);
+  const [showInfra, setShowInfra] = useState<boolean>(true);
+
   // Forecast Timeline State
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [isPlayingTimeline, setIsPlayingTimeline] = useState<boolean>(false);
@@ -106,6 +110,7 @@ export default function DashboardPage() {
 
     fetchPriorities(10).then(setPriorities).catch(console.error);
     fetchModelMetrics().then(setMetrics).catch(console.error);
+    fetchInfrastructure().then(setInfraData).catch(console.error);
 
     const interval = setInterval(() => {
       checkApiHealth().then(setApiOnline);
@@ -438,6 +443,20 @@ export default function DashboardPage() {
                 </select>
               </div>
             )}
+
+            {/* Infrastructure Toggle */}
+            <div className="flex items-center gap-1.5 text-xs text-[#8A9EB8] ml-2 pl-2 border-l border-[#1A2C46]">
+              <MapIcon size={13} className={showInfra ? "text-green-400" : "text-gray-500"} />
+              <button 
+                onClick={() => setShowInfra(!showInfra)}
+                className={clsx(
+                  "px-2.5 py-1 rounded-lg border transition-colors",
+                  showInfra ? "bg-green-500/20 text-green-400 border-green-500/40" : "bg-[#0D1B2E] text-gray-400 border-[#1A2C46] hover:bg-[#15253e]"
+                )}
+              >
+                {showInfra ? 'Infra: ON' : 'Infra: OFF'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -539,6 +558,66 @@ export default function DashboardPage() {
               </Source>
             )}
 
+            {/* ─── REAL OSM ROADS (flood-risk heatmap) ─── */}
+            {showInfra && infraData?.roads && (
+              <Source id="infra-roads" type="geojson" data={infraData.roads as any}>
+
+                {/* Shadow / glow beneath primary roads for contrast on satellite */}
+                <Layer
+                  id="roads-primary-shadow"
+                  type="line"
+                  filter={['==', ['get', 'road_type'], 'primary']}
+                  paint={{
+                    'line-color': '#000000',
+                    'line-width': ['interpolate', ['linear'], ['zoom'], 6, 3, 9, 5, 12, 8],
+                    'line-opacity': 0.35,
+                    'line-blur': 3,
+                  }}
+                />
+
+                {/* Secondary roads — coloured by flood_risk */}
+                <Layer
+                  id="roads-secondary"
+                  type="line"
+                  filter={['==', ['get', 'road_type'], 'secondary']}
+                  paint={{
+                    'line-color': [
+                      'interpolate', ['linear'], ['get', 'flood_risk'],
+                      0.0,  '#10b981',   // green  – safe
+                      0.2,  '#34d399',   // light green
+                      0.35, '#fbbf24',   // amber  – moderate
+                      0.5,  '#f97316',   // orange – high
+                      0.75, '#ef4444',   // red    – critical
+                      1.0,  '#7f1d1d',   // dark red
+                    ],
+                    'line-width': ['interpolate', ['linear'], ['zoom'], 6, 0.8, 9, 1.5, 12, 2.5],
+                    'line-opacity': 0.72,
+                  }}
+                />
+
+                {/* Primary roads — same flood_risk gradient but thicker */}
+                <Layer
+                  id="roads-primary"
+                  type="line"
+                  filter={['==', ['get', 'road_type'], 'primary']}
+                  paint={{
+                    'line-color': [
+                      'interpolate', ['linear'], ['get', 'flood_risk'],
+                      0.0,  '#10b981',
+                      0.2,  '#34d399',
+                      0.35, '#fbbf24',
+                      0.5,  '#f97316',
+                      0.75, '#ef4444',
+                      1.0,  '#7f1d1d',
+                    ],
+                    'line-width': ['interpolate', ['linear'], ['zoom'], 6, 1.5, 9, 3, 12, 5],
+                    'line-opacity': 0.9,
+                  }}
+                />
+              </Source>
+            )}
+
+
             <Source id="sulawesi-points" type="geojson" data={geoJSON as any}>
               {/* Outer halo / glow layer */}
               <Layer
@@ -618,6 +697,43 @@ export default function DashboardPage() {
                 </div>
               </div>
             )}
+
+            {/* ─── FACILITY MARKERS ─── */}
+            {showInfra && infraData?.facilities?.features?.map((f: any) => {
+              const { id, name, type, capacity } = f.properties;
+              const [lon, lat] = f.geometry.coordinates;
+              const isHosp = id.startsWith('HOSP');
+              const isShelter = id.startsWith('SHELTER');
+              const bgColor = isHosp ? '#ef4444' : isShelter ? '#22c55e' : '#f59e0b';
+              const borderColor = isHosp ? '#fca5a5' : isShelter ? '#86efac' : '#fcd34d';
+              return (
+                <Marker key={id} longitude={lon} latitude={lat} anchor="center">
+                  <div className="group relative">
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-125 shadow-lg"
+                      style={{ background: bgColor + '33', border: `2px solid ${borderColor}`, boxShadow: `0 0 12px ${bgColor}88` }}
+                    >
+                      {isHosp
+                        ? <span style={{ color: borderColor, fontSize: 13, fontWeight: 900 }}>+</span>
+                        : isShelter
+                          ? <Shield size={12} style={{ color: borderColor }} />
+                          : <span style={{ color: borderColor, fontSize: 10, fontWeight: 900 }}>⚡</span>
+                      }
+                    </div>
+                    {/* Tooltip on hover */}
+                    <div className="absolute bottom-9 left-1/2 -translate-x-1/2 z-50 hidden group-hover:block w-52 pointer-events-none">
+                      <div className="bg-[#080F1E]/98 backdrop-blur-md border border-[#1A2C46] rounded-xl p-2.5 shadow-2xl text-white text-[10px] space-y-1">
+                        <div className="font-bold text-[11px] leading-tight" style={{ color: borderColor }}>{name}</div>
+                        <div className="text-[#8A9EB8]">{type}</div>
+                        <div className="text-cyan-400 font-mono">{capacity}</div>
+                        <div className="text-[9px] text-[#8A9EB8] pt-0.5 border-t border-[#1A2C46]">{id}</div>
+                      </div>
+                      <div className="w-2 h-2 bg-[#1A2C46] rotate-45 mx-auto -mt-1 border-r border-b border-[#1A2C46]" />
+                    </div>
+                  </div>
+                </Marker>
+              );
+            })}
           </Map>
 
 
@@ -656,6 +772,34 @@ export default function DashboardPage() {
                 <span className="font-mono text-[#8A9EB8] text-xs">{activeCriticalCount}</span>
               </div>
             </div>
+
+            {/* Infrastructure legend */}
+            {showInfra && infraData && (
+              <div className="mt-2 pt-2 border-t border-[#1A2C46] space-y-1.5 text-xs">
+                <div className="text-[10px] font-bold text-[#5C85C5] uppercase tracking-widest mb-1">Road Flood Risk</div>
+                {/* Gradient bar */}
+                <div className="h-2 w-full rounded-full" style={{background: 'linear-gradient(to right, #10b981, #fbbf24, #f97316, #ef4444)'}} />
+                <div className="flex justify-between text-[9px] text-[#8A9EB8]">
+                  <span>Safe</span><span>Moderate</span><span>High</span><span>Critical</span>
+                </div>
+                <div className="pt-1 border-t border-[#1A2C46] space-y-1 text-[10px]">
+                  <div className="flex items-center gap-2 text-red-300">
+                    <span className="w-5 h-5 rounded-full bg-red-500/20 border-2 border-red-300 flex items-center justify-center text-red-200 text-[11px] font-black">+</span>
+                    Hospital / Medical
+                  </div>
+                  <div className="flex items-center gap-2 text-green-300">
+                    <span className="w-5 h-5 rounded-full bg-green-500/20 border-2 border-green-300 flex items-center justify-center">
+                      <Shield size={9} className="text-green-200" />
+                    </span>
+                    Shelter / Evac Hub
+                  </div>
+                  <div className="flex items-center gap-2 text-amber-300">
+                    <span className="w-5 h-5 rounded-full bg-amber-500/20 border-2 border-amber-300 flex items-center justify-center text-amber-200 text-[10px]">⚡</span>
+                    Critical Infrastructure
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick Selected Highlight Badge on Map */}

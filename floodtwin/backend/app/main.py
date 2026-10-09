@@ -12,9 +12,11 @@ from fastapi.middleware.cors import CORSMiddleware
 try:
     from floodtwin.backend.app.api.predict import router as predict_router
     from floodtwin.backend.app.api.alerts import router as alerts_router
+    from floodtwin.backend.app.api.infrastructure import router as infra_router
 except ImportError:
     from backend.app.api.predict import router as predict_router
     from backend.app.api.alerts import router as alerts_router
+    from backend.app.api.infrastructure import router as infra_router
 
 
 app = FastAPI(
@@ -61,3 +63,4 @@ def health():
 
 app.include_router(predict_router)
 app.include_router(alerts_router)
+app.include_router(infra_router)
