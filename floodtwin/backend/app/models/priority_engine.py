@@ -245,52 +245,34 @@ def get_response_zones(cells: List[Dict[str, Any]], top_n: int = 10) -> List[Dic
 
 def get_clustered_incidents(cells: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Clusters flooded sectors into 10–20 named incidents using spatial DBSCAN.
-    Each incident includes:
-    - Name (e.g. 'Coastal strip near Maros, 41 sectors, peak risk 99%')
-    - Onset, Peak time
-    - Top drivers
-    - Action line
-    - Alert state (New, Escalated, Cleared)
-    - Trend arrow (▲, ▶, ▼)
-    - Countdown timer (e.g. 'Impact in 2h 10m')
+    Returns alert incidents grouped by all defense response zones across Sulawesi.
+    Displays every zone with aggregated sector count, peak risk, onset, peak,
+    and action recommendations.
     """
-    flooded_cells = [c for c in cells if c["flood_probability"] >= 0.45]
-    if not flooded_cells:
+    if not cells:
         return []
 
-    coords = np.array([[c["lat"], c["lon"]] for c in flooded_cells])
-
-    # DBSCAN spatial clustering (eps ~0.08 deg is approx 9 km)
-    db = DBSCAN(eps=0.08, min_samples=2).fit(coords)
-    labels = db.labels_
-
-    clusters_dict = {}
-    for idx, label in enumerate(labels):
-        if label not in clusters_dict:
-            clusters_dict[label] = []
-        clusters_dict[label].append(flooded_cells[idx])
+    # Group all sectors by their assigned defense response zone
+    zones_dict: Dict[str, List[Dict[str, Any]]] = {}
+    for c in cells:
+        z_name = c.get("residing_zone_name") or assign_zone_name(c["lat"], c["lon"])
+        if z_name not in zones_dict:
+            zones_dict[z_name] = []
+        zones_dict[z_name].append(c)
 
     incidents = []
-    incident_counter = 1
-
-    # Deterministic incident templates based on cluster geographic centroid
-    for label, c_cells in sorted(clusters_dict.items(), key=lambda item: len(item[1]), reverse=True):
-        if len(c_cells) < 1:
-            continue
-
-        lats = [c["lat"] for c in c_cells]
-        lons = [c["lon"] for c in c_cells]
+    for incident_counter, (zone_name, z_cells) in enumerate(zones_dict.items(), start=1):
+        z_id = z_cells[0].get("residing_zone_id") or f"ZONE-{incident_counter:02d}"
+        lats = [c["lat"] for c in z_cells]
+        lons = [c["lon"] for c in z_cells]
         mean_lat = float(np.mean(lats))
         mean_lon = float(np.mean(lons))
-        peak_prob = float(np.max([c["flood_probability"] for c in c_cells]))
-        avg_prob = float(np.mean([c["flood_probability"] for c in c_cells]))
-        min_elev = float(np.min([c["elevation"] for c in c_cells]))
-        max_rain = float(np.max([c["precip_3d"] for c in c_cells]))
-        max_twi = float(np.max([c["TWI"] for c in c_cells]))
-
-        zone_name = assign_zone_name(mean_lat, mean_lon, idx=incident_counter)
-        sector_count = len(c_cells)
+        peak_prob = float(np.max([c["flood_probability"] for c in z_cells]))
+        avg_prob = float(np.mean([c["flood_probability"] for c in z_cells]))
+        min_elev = float(np.min([c["elevation"] for c in z_cells]))
+        max_rain = float(np.max([c["precip_3d"] for c in z_cells]))
+        max_twi = float(np.max([c["TWI"] for c in z_cells]))
+        sector_count = len(z_cells)
 
         # Dynamic State, Trend, and Countdown
         if peak_prob >= 0.88:
@@ -299,21 +281,28 @@ def get_clustered_incidents(cells: List[Dict[str, Any]]) -> List[Dict[str, Any]]
             countdown = "Peak Surge in 2h 15m"
             onset = "+1h 00m (Imminent)"
             peak = "+6h 00m (High Tide 3.6m)"
-            action_line = f"Issue Level-3 evacuation order for {sector_count} low-elevation sectors; dispatch amphibious rescue units."
+            action_line = f"Issue Level-3 evacuation order for {sector_count} sectors in {zone_name}; dispatch amphibious rescue units."
         elif peak_prob >= 0.70:
             state = "New"
             trend = "▲ Escalating"
             countdown = "Impact in 3h 40m"
             onset = "+2h 30m"
             peak = "+7h 00m (Spring Tide)"
-            action_line = f"Pre-stage sandbags along drainage canals; activate tidal dewatering pumps before high tide."
-        else:
-            state = "Cleared" if max_rain < 25 else "New"
-            trend = "▼ Receding" if state == "Cleared" else "▶ Stable"
-            countdown = "Recession in 4h 20m" if state == "Cleared" else "Monitoring"
+            action_line = f"Pre-stage sandbags along drainage canals; activate tidal dewatering pumps in {zone_name}."
+        elif peak_prob >= 0.35:
+            state = "New"
+            trend = "▶ Monitoring"
+            countdown = "Monitoring Tide"
             onset = "+4h 00m"
             peak = "+8h 00m"
-            action_line = f"Clear drainage culverts; inspect secondary road access routes for receding water."
+            action_line = f"Inspect secondary road access routes and culverts across {zone_name}; monitor runoff."
+        else:
+            state = "Cleared"
+            trend = "▼ Nominal"
+            countdown = "Nominal Baseline"
+            onset = "No Flood Onset"
+            peak = "Baseline Risk"
+            action_line = f"Zone operating within safe capacity. Standard maintenance and monitoring."
 
         # Top Drivers
         drivers = []
@@ -327,8 +316,8 @@ def get_clustered_incidents(cells: List[Dict[str, Any]]) -> List[Dict[str, Any]]
             drivers.append(f"Hydro-topographic catchment runoff (Peak {int(peak_prob*100)}%)")
 
         incidents.append({
-            "incident_id": f"INC-{incident_counter:02d}",
-            "name": f"{zone_name}",
+            "incident_id": z_id,
+            "name": zone_name,
             "headline": f"{zone_name}, {sector_count} sectors, peak risk {int(peak_prob*100)}%",
             "sector_count": sector_count,
             "peak_probability": round(peak_prob, 4),
@@ -343,11 +332,10 @@ def get_clustered_incidents(cells: List[Dict[str, Any]]) -> List[Dict[str, Any]]
             "countdown": countdown,
             "centroid": [round(mean_lon, 4), round(mean_lat, 4)],
             "bbox": [round(min(lons), 4), round(min(lats), 4), round(max(lons), 4), round(max(lats), 4)],
-            "sector_ids": [c["id"] for c in c_cells[:12]],
+            "sector_ids": [c["id"] for c in z_cells[:12]],
         })
-        incident_counter += 1
 
-    # Sort incidents by peak risk descending
+    # Sort incidents by peak risk descending so highest-risk zones appear first
     incidents.sort(key=lambda x: x["peak_probability"], reverse=True)
     return incidents
 

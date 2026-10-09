@@ -4,7 +4,7 @@ import {
   TrendingUp, Sliders, RefreshCw, BarChart3,
   Layers, Compass, Mountain, ArrowUpRight, ArrowDownRight, Filter, Clock,
   Sparkles, CheckCircle2, ChevronDown, ChevronUp, FileText,
-  Shield, Crosshair, Target, Map as MapIcon
+  Shield, Crosshair, Target, Map as MapIcon, Waves
 } from 'lucide-react';
 import Map, { Source, Layer, NavigationControl, FullscreenControl, MapLayerMouseEvent, Marker } from 'react-map-gl/maplibre';
 import {
@@ -18,7 +18,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import clsx from 'clsx';
 import TimelineSlider, { TIMELINE_STEPS } from '../components/timeline/TimelineSlider';
 import BriefingCard from '../components/briefing/BriefingCard';
-import { TippingPointCard, TIP_COLORS } from '../components/TippingPointCard';
+import { TIP_COLORS } from '../components/TippingPointCard';
 import { ZonePanel } from '../components/zone/ZonePanel';
 import { useTemporalForecast } from '../hooks/use-temporal-forecast';
 
@@ -68,10 +68,12 @@ export default function DashboardPage() {
   const [selectedEvent, setSelectedEvent] = useState<string>('ALL');
   const [riskFilter, setRiskFilter] = useState<string>('ALL');
 
-  // Infrastructure Data
+  // Map Layers Mode (Mutually Exclusive: 'risk' | 'infrastructure' | 'sensitivity')
+  // when clicking one layer, all other elements are hidden from the map
+  const [activeLayer, setActiveLayer] = useState<'risk' | 'infrastructure' | 'sensitivity'>('risk');
   const [infraData, setInfraData] = useState<{roads: any, buildings: any, facilities: any} | null>(null);
-  const [showInfra, setShowInfra] = useState<boolean>(true);
-  const [showSensitivity, setShowSensitivity] = useState<boolean>(false);
+  const showInfra = activeLayer === 'infrastructure';
+  const showSensitivity = activeLayer === 'sensitivity';
 
   // Forecast Timeline State
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
@@ -499,7 +501,7 @@ export default function DashboardPage() {
             boxZoom={false}
             keyboard={false}
             dragPan={true}
-            interactiveLayerIds={['flood-points', 'flood-points-glow']}
+            interactiveLayerIds={activeLayer === 'infrastructure' ? [] : ['flood-points', 'flood-points-glow']}
             onMouseMove={onMouseMove}
             onMouseLeave={onMouseLeave}
             onClick={onMapClick}
@@ -508,7 +510,7 @@ export default function DashboardPage() {
             <NavigationControl position="bottom-right" showCompass={false} />
 
             {/* Selected Zone High-Visibility Target Beacon & Pulse Rings */}
-            {selectedZoneGeoJSON && (
+            {activeLayer !== 'infrastructure' && selectedZoneGeoJSON && (
               <Source id="selected-zone-beacon-source" type="geojson" data={selectedZoneGeoJSON as any}>
                 <Layer
                   id="selected-beacon-pulse"
@@ -539,7 +541,7 @@ export default function DashboardPage() {
             )}
 
             {/* Hovered Zone Translucent Spherical Ripple / Aura Spread */}
-            {hoverGeoJSON && (
+            {activeLayer !== 'infrastructure' && hoverGeoJSON && (
               <Source id="hover-sphere-source" type="geojson" data={hoverGeoJSON as any}>
                 <Layer
                   id="hover-sphere-outer"
@@ -627,71 +629,73 @@ export default function DashboardPage() {
             )}
 
 
-            <Source id="sulawesi-points" type="geojson" data={geoJSON as any}>
-              {/* Outer halo / glow layer */}
-              <Layer
-                id="flood-points-glow"
-                type="circle"
-                paint={{
-                  'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 6, 9, 14, 12, 22],
-                  'circle-color': showSensitivity
-                    ? [
-                        'match',
-                        ['get', 'rain_sensitivity'],
-                        'Flooded at any rain', '#7C3AED',
-                        'Extremely sensitive', '#C026D3',
-                        'Sensitive', '#EF4444',
-                        'Moderate', '#FB923C',
-                        'Resilient', '#22C55E',
-                        '#22C55E',
-                      ]
-                    : [
-                        'match',
-                        ['get', 'risk_level'],
-                        'Critical', '#ef4444',
-                        'High', '#f97316',
-                        'Moderate', '#f59e0b',
-                        '#10b981',
-                      ],
-                  'circle-opacity': 0.35,
-                  'circle-blur': 0.6,
-                }}
-              />
-              {/* Core solid point layer */}
-              <Layer
-                id="flood-points"
-                type="circle"
-                paint={{
-                  'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 3.5, 9, 7, 12, 12],
-                  'circle-color': showSensitivity
-                    ? [
-                        'match',
-                        ['get', 'rain_sensitivity'],
-                        'Flooded at any rain', '#7C3AED',
-                        'Extremely sensitive', '#C026D3',
-                        'Sensitive', '#EF4444',
-                        'Moderate', '#FB923C',
-                        'Resilient', '#22C55E',
-                        '#22C55E',
-                      ]
-                    : [
-                        'match',
-                        ['get', 'risk_level'],
-                        'Critical', '#ef4444',
-                        'High', '#f97316',
-                        'Moderate', '#f59e0b',
-                        '#10b981',
-                      ],
-                  'circle-stroke-width': 1.5,
-                  'circle-stroke-color': '#ffffff',
-                  'circle-stroke-opacity': 0.85,
-                  'circle-opacity': 0.95,
-                }}
-              />
-            </Source>
+            {activeLayer !== 'infrastructure' && (
+              <Source id="sulawesi-points" type="geojson" data={geoJSON as any}>
+                {/* Outer halo / glow layer */}
+                <Layer
+                  id="flood-points-glow"
+                  type="circle"
+                  paint={{
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 6, 9, 14, 12, 22],
+                    'circle-color': showSensitivity
+                      ? [
+                          'match',
+                          ['get', 'rain_sensitivity'],
+                          'Flooded at any rain', '#7C3AED',
+                          'Extremely sensitive', '#C026D3',
+                          'Sensitive', '#EF4444',
+                          'Moderate', '#FB923C',
+                          'Resilient', '#22C55E',
+                          '#22C55E',
+                        ]
+                      : [
+                          'match',
+                          ['get', 'risk_level'],
+                          'Critical', '#ef4444',
+                          'High', '#f97316',
+                          'Moderate', '#f59e0b',
+                          '#10b981',
+                        ],
+                    'circle-opacity': 0.35,
+                    'circle-blur': 0.6,
+                  }}
+                />
+                {/* Core solid point layer */}
+                <Layer
+                  id="flood-points"
+                  type="circle"
+                  paint={{
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 3.5, 9, 7, 12, 12],
+                    'circle-color': showSensitivity
+                      ? [
+                          'match',
+                          ['get', 'rain_sensitivity'],
+                          'Flooded at any rain', '#7C3AED',
+                          'Extremely sensitive', '#C026D3',
+                          'Sensitive', '#EF4444',
+                          'Moderate', '#FB923C',
+                          'Resilient', '#22C55E',
+                          '#22C55E',
+                        ]
+                      : [
+                          'match',
+                          ['get', 'risk_level'],
+                          'Critical', '#ef4444',
+                          'High', '#f97316',
+                          'Moderate', '#f59e0b',
+                          '#10b981',
+                        ],
+                    'circle-stroke-width': 1.5,
+                    'circle-stroke-color': '#ffffff',
+                    'circle-stroke-opacity': 0.85,
+                    'circle-opacity': 0.95,
+                  }}
+                />
+              </Source>
+            )}
 
             {/* Hover Tooltip — placed INSIDE Map so it renders in fullscreen too */}
-            {hoverInfo && (
+            {activeLayer !== 'infrastructure' && hoverInfo && (
               <div
                 style={{
                   position: 'absolute',
@@ -768,16 +772,23 @@ export default function DashboardPage() {
           </Map>
 
 
-          {/* Map Legend */}
-          <div className="absolute bottom-4 left-4 bg-[#081220]/90 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3.5 shadow-2xl text-white w-64">
+          {/* Map Legend (Strictly Mutually Exclusive to Active Layer) */}
+          <div className="absolute bottom-4 left-4 bg-[#081220]/90 backdrop-blur-md border border-[#1A2C46] rounded-xl p-3.5 shadow-2xl text-white w-64 z-10">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-bold flex items-center gap-2">
                 <Layers size={15} className="text-blue-400" />
-                {showSensitivity ? 'Rainfall Sensitivity Scale' : 'Flood Probability Scale'}
+                {activeLayer === 'sensitivity'
+                  ? 'Rainfall Sensitivity Scale'
+                  : activeLayer === 'infrastructure'
+                    ? 'Infrastructure Layer'
+                    : 'Flood Probability Scale'}
               </span>
-              <span className="text-xs text-[#8A9EB8] font-mono">{activeTimelineStep.label}</span>
+              {activeLayer !== 'infrastructure' && (
+                <span className="text-xs text-[#8A9EB8] font-mono">{activeTimelineStep.label}</span>
+              )}
             </div>
-            {showSensitivity ? (
+
+            {activeLayer === 'sensitivity' && (
               <div className="space-y-1.5 text-xs">
                 {Object.entries(TIP_COLORS).map(([catLabel, catColor]) => (
                   <div key={catLabel} className="flex items-center justify-between">
@@ -791,7 +802,9 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
-            ) : (
+            )}
+
+            {activeLayer === 'risk' && (
               <div className="space-y-1.5 text-xs">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-emerald-400 font-medium">
@@ -820,16 +833,15 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Infrastructure legend */}
-            {showInfra && infraData && (
-              <div className="mt-2 pt-2 border-t border-[#1A2C46] space-y-1.5 text-xs">
+            {activeLayer === 'infrastructure' && (
+              <div className="space-y-1.5 text-xs">
                 <div className="text-[10px] font-bold text-[#5C85C5] uppercase tracking-widest mb-1">Road Flood Risk</div>
                 {/* Gradient bar */}
                 <div className="h-2 w-full rounded-full" style={{background: 'linear-gradient(to right, #10b981, #fbbf24, #f97316, #ef4444)'}} />
                 <div className="flex justify-between text-[9px] text-[#8A9EB8]">
                   <span>Safe</span><span>Moderate</span><span>High</span><span>Critical</span>
                 </div>
-                <div className="pt-1 border-t border-[#1A2C46] space-y-1 text-[10px]">
+                <div className="pt-2 border-t border-[#1A2C46] space-y-1.5 text-[11px]">
                   <div className="flex items-center gap-2 text-red-300">
                     <span className="w-5 h-5 rounded-full bg-red-500/20 border-2 border-red-300 flex items-center justify-center text-red-200 text-[11px] font-black">+</span>
                     Hospital / Medical
@@ -872,95 +884,174 @@ export default function DashboardPage() {
                 "flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-2xl transition-all backdrop-blur-md",
                 showLayersMenu
                   ? "bg-[#0D1B2E] text-white border-cyan-400 shadow-cyan-950/50"
-                  : (showInfra || showSensitivity)
-                    ? "bg-[#081220]/95 text-white border-cyan-500/50 hover:bg-[#0D1B2E]"
-                    : "bg-[#081220]/90 text-[#8A9EB8] border-[#1A2C46] hover:text-white hover:border-[#2A3C56] hover:bg-[#0D1B2E]"
+                  : "bg-[#081220]/95 text-white border-[#1A2C46] hover:border-cyan-500/50 hover:bg-[#0D1B2E]"
               )}
               title="Map Layers"
             >
-              <Layers size={14} className={showLayersMenu || showInfra || showSensitivity ? "text-cyan-400" : "text-[#8A9EB8]"} />
-              <span>Layers</span>
-              {(showInfra || showSensitivity) && (
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]" />
-              )}
+              <Layers
+                size={14}
+                className={
+                  activeLayer === 'risk'
+                    ? "text-cyan-400"
+                    : activeLayer === 'infrastructure'
+                      ? "text-emerald-400"
+                      : "text-purple-400"
+                }
+              />
+              <span>
+                {activeLayer === 'risk'
+                  ? 'Flood Risk'
+                  : activeLayer === 'infrastructure'
+                    ? 'Infrastructure'
+                    : 'Rain Sensitivity'}
+              </span>
+              <span
+                className={clsx(
+                  "w-1.5 h-1.5 rounded-full",
+                  activeLayer === 'risk'
+                    ? "bg-cyan-400 shadow-[0_0_6px_#22d3ee]"
+                    : activeLayer === 'infrastructure'
+                      ? "bg-emerald-400 shadow-[0_0_6px_#34d399]"
+                      : "bg-purple-400 shadow-[0_0_6px_#c084fc]"
+                )}
+              />
             </button>
 
-            {/* Dropdown Menu */}
+            {/* Dropdown Menu (Mutually Exclusive Layers) */}
             {showLayersMenu && (
-              <div className="absolute right-0 top-10 w-72 rounded-xl bg-[#081220]/95 backdrop-blur-md border border-[#1A2C46] p-3 shadow-2xl space-y-2.5 z-30">
+              <div className="absolute right-0 top-10 w-72 rounded-xl bg-[#081220]/95 backdrop-blur-md border border-[#1A2C46] p-3 shadow-2xl space-y-2 z-30">
                 <div className="flex items-center justify-between pb-2 border-b border-[#1A2C46] text-xs font-bold text-white">
                   <span className="flex items-center gap-1.5">
                     <Layers size={13} className="text-cyan-400" />
-                    Map Layers
+                    Display Layer
                   </span>
-                  <span className="text-[10px] font-mono text-[#5C85C5] font-normal">
-                    {[showInfra ? '1' : null, showSensitivity ? '1' : null].filter(Boolean).length} Active
+                  <span className="text-[10px] font-mono text-cyan-400/80 font-normal">
+                    Solo View
                   </span>
                 </div>
 
-                {/* Layer 1: Infrastructure */}
-                <div 
-                  onClick={() => setShowInfra(!showInfra)}
-                  className="p-2.5 rounded-lg bg-[#050B14]/80 border border-[#1A2C46] hover:border-emerald-500/40 transition cursor-pointer flex items-center justify-between group"
+                {/* Layer 1: Flood Hazard Risk */}
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setActiveLayer('risk');
+                    setShowLayersMenu(false);
+                  }}
+                  className={clsx(
+                    "w-full p-2.5 rounded-lg border transition text-left flex items-center justify-between group cursor-pointer",
+                    activeLayer === 'risk'
+                      ? "bg-cyan-950/30 border-cyan-500/60 shadow-lg"
+                      : "bg-[#050B14]/80 border-[#1A2C46] hover:border-cyan-500/40"
+                  )}
                 >
                   <div className="flex items-center gap-2.5">
                     <div className={clsx(
                       "w-7 h-7 rounded-lg flex items-center justify-center transition-colors",
-                      showInfra ? "bg-emerald-500/20 text-emerald-400" : "bg-[#0D1B2E] text-gray-500"
+                      activeLayer === 'risk' ? "bg-cyan-500/20 text-cyan-400" : "bg-[#0D1B2E] text-gray-400"
+                    )}>
+                      <Waves size={14} />
+                    </div>
+                    <div>
+                      <div className={clsx(
+                        "text-xs font-semibold transition-colors",
+                        activeLayer === 'risk' ? "text-cyan-300" : "text-white group-hover:text-cyan-300"
+                      )}>
+                        Flood Hazard Risk
+                      </div>
+                      <div className="text-[10px] text-[#8A9EB8]">XGBoost probability hazard grid</div>
+                    </div>
+                  </div>
+
+                  {/* Radio Indicator */}
+                  <div className={clsx(
+                    "w-4 h-4 rounded-full border flex items-center justify-center",
+                    activeLayer === 'risk' ? "border-cyan-400 bg-cyan-500/20" : "border-[#2A3C56]"
+                  )}>
+                    {activeLayer === 'risk' && <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]" />}
+                  </div>
+                </button>
+
+                {/* Layer 2: Infrastructure */}
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setActiveLayer('infrastructure');
+                    setShowLayersMenu(false);
+                  }}
+                  className={clsx(
+                    "w-full p-2.5 rounded-lg border transition text-left flex items-center justify-between group cursor-pointer",
+                    activeLayer === 'infrastructure'
+                      ? "bg-emerald-950/30 border-emerald-500/60 shadow-lg"
+                      : "bg-[#050B14]/80 border-[#1A2C46] hover:border-emerald-500/40"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className={clsx(
+                      "w-7 h-7 rounded-lg flex items-center justify-center transition-colors",
+                      activeLayer === 'infrastructure' ? "bg-emerald-500/20 text-emerald-400" : "bg-[#0D1B2E] text-gray-400"
                     )}>
                       <MapIcon size={14} />
                     </div>
                     <div>
-                      <div className="text-xs font-semibold text-white group-hover:text-emerald-300 transition-colors">
+                      <div className={clsx(
+                        "text-xs font-semibold transition-colors",
+                        activeLayer === 'infrastructure' ? "text-emerald-300" : "text-white group-hover:text-emerald-300"
+                      )}>
                         Infrastructure
                       </div>
                       <div className="text-[10px] text-[#8A9EB8]">Roads, hospitals, evac hubs</div>
                     </div>
                   </div>
 
-                  {/* Toggle Switch */}
+                  {/* Radio Indicator */}
                   <div className={clsx(
-                    "w-9 h-5 rounded-full p-0.5 transition-colors relative flex items-center",
-                    showInfra ? "bg-emerald-500" : "bg-[#1A2C46]"
+                    "w-4 h-4 rounded-full border flex items-center justify-center",
+                    activeLayer === 'infrastructure' ? "border-emerald-400 bg-emerald-500/20" : "border-[#2A3C56]"
                   )}>
-                    <div className={clsx(
-                      "w-4 h-4 rounded-full bg-white transition-transform shadow-md",
-                      showInfra ? "translate-x-4" : "translate-x-0"
-                    )} />
+                    {activeLayer === 'infrastructure' && <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />}
                   </div>
-                </div>
+                </button>
 
-                {/* Layer 2: Rainfall Sensitivity */}
-                <div 
-                  onClick={() => setShowSensitivity(!showSensitivity)}
-                  className="p-2.5 rounded-lg bg-[#050B14]/80 border border-[#1A2C46] hover:border-purple-500/40 transition cursor-pointer flex items-center justify-between group"
+                {/* Layer 3: Rainfall Sensitivity */}
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setActiveLayer('sensitivity');
+                    setShowLayersMenu(false);
+                  }}
+                  className={clsx(
+                    "w-full p-2.5 rounded-lg border transition text-left flex items-center justify-between group cursor-pointer",
+                    activeLayer === 'sensitivity'
+                      ? "bg-purple-950/30 border-purple-500/60 shadow-lg"
+                      : "bg-[#050B14]/80 border-[#1A2C46] hover:border-purple-500/40"
+                  )}
                 >
                   <div className="flex items-center gap-2.5">
                     <div className={clsx(
                       "w-7 h-7 rounded-lg flex items-center justify-center transition-colors",
-                      showSensitivity ? "bg-purple-500/20 text-purple-400" : "bg-[#0D1B2E] text-gray-500"
+                      activeLayer === 'sensitivity' ? "bg-purple-500/20 text-purple-400" : "bg-[#0D1B2E] text-gray-400"
                     )}>
                       <Sliders size={14} />
                     </div>
                     <div>
-                      <div className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors">
+                      <div className={clsx(
+                        "text-xs font-semibold transition-colors",
+                        activeLayer === 'sensitivity' ? "text-purple-300" : "text-white group-hover:text-purple-300"
+                      )}>
                         Rainfall Sensitivity
                       </div>
                       <div className="text-[10px] text-[#8A9EB8]">Model tipping point bands</div>
                     </div>
                   </div>
 
-                  {/* Toggle Switch */}
+                  {/* Radio Indicator */}
                   <div className={clsx(
-                    "w-9 h-5 rounded-full p-0.5 transition-colors relative flex items-center",
-                    showSensitivity ? "bg-purple-500" : "bg-[#1A2C46]"
+                    "w-4 h-4 rounded-full border flex items-center justify-center",
+                    activeLayer === 'sensitivity' ? "border-purple-400 bg-purple-500/20" : "border-[#2A3C56]"
                   )}>
-                    <div className={clsx(
-                      "w-4 h-4 rounded-full bg-white transition-transform shadow-md",
-                      showSensitivity ? "translate-x-4" : "translate-x-0"
-                    )} />
+                    {activeLayer === 'sensitivity' && <div className="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_6px_#c084fc]" />}
                   </div>
-                </div>
+                </button>
               </div>
             )}
           </div>
@@ -1294,9 +1385,6 @@ export default function DashboardPage() {
                     <span className="text-xs text-[#8A9EB8]">3-Day Cumulative (mm)</span>
                     <div className="text-base font-bold font-mono text-blue-400 mt-0.5">{selectedCell.precip_3d.toFixed(1)} mm</div>
                   </div>
-                </div>
-                <div className="mt-2.5">
-                  <TippingPointCard cell={selectedCell} />
                 </div>
                 <div className="mt-3">
                   <ZonePanel forecast={temporalForecast} loading={temporalLoading} />

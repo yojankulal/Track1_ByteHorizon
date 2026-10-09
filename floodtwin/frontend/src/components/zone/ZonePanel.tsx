@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, TrendingUp, AlertTriangle, ShieldCheck, Waves, Sparkles, Activity } from 'lucide-react';
+import { Clock, TrendingUp, AlertTriangle, Waves, Sparkles, Activity } from 'lucide-react';
 import type { TemporalForecastResponse } from '../../lib/api-client';
 
 interface Props {
@@ -32,7 +32,6 @@ export const ZonePanel: React.FC<Props> = ({ forecast, loading }) => {
     peak_range,
     peak_probability_percent,
     hourly_series,
-    model_used,
   } = forecast;
 
   const hasOnset = onset_hour !== null;
@@ -219,15 +218,6 @@ export const ZonePanel: React.FC<Props> = ({ forecast, loading }) => {
           <span>+18h</span>
           <span>+24h</span>
         </div>
-      </div>
-
-      {/* Model & Source Attribution */}
-      <div className="flex items-center justify-between text-[10px] text-[#5C85C5]">
-        <span>Foundation Model: <span className="text-white font-mono">{model_used}</span></span>
-        <span className="flex items-center gap-1 text-emerald-400">
-          <ShieldCheck size={12} />
-          Calibrated Zero-Shot
-        </span>
       </div>
     </div>
   );

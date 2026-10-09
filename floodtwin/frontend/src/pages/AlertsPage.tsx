@@ -45,22 +45,22 @@ export default function AlertsPage() {
             <AlertTriangle size={22} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Active Flood Incidents</h1>
+            <h1 className="text-xl font-bold text-white">Active Defense Response Zones</h1>
             <p className="text-xs text-[#8A9EB8]">
-              Clustered spatial flood hazards with early warning indicators
+              All spatial defense response zones with real-time early warning indicators
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/30 px-3.5 py-1.5 rounded-lg font-mono">
           <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
-          {incidents.length} Active Incidents
+          {incidents.length} Active Zones
         </div>
       </div>
 
       {isLoading ? (
         <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-12 text-center text-xs text-[#8A9EB8]">
-          Clustering flooded sectors into incidents...
+          Loading active response zone alerts...
         </div>
       ) : incidents.length === 0 ? (
         <div className="bg-[#081220] border border-[#1A2C46] rounded-xl p-12 text-center space-y-2">
