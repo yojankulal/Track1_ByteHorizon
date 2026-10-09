@@ -90,6 +90,9 @@ class GridCell(BaseModel):
     location_name: str
     residing_zone_name: Optional[str] = None
     residing_zone_id: Optional[str] = None
+    tipping_mm: Optional[float] = None
+    tipping_margin_mm: Optional[float] = None
+    rain_sensitivity: Optional[str] = None
 
 
 class GridResponse(BaseModel):

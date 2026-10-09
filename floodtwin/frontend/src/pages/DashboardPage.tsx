@@ -18,6 +18,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import clsx from 'clsx';
 import TimelineSlider, { TIMELINE_STEPS } from '../components/timeline/TimelineSlider';
 import BriefingCard from '../components/briefing/BriefingCard';
+import { TippingPointCard, TIP_COLORS } from '../components/TippingPointCard';
 
 const RISK_COLORS: Record<string, string> = {
   Low: '#10b981',
@@ -67,6 +68,7 @@ export default function DashboardPage() {
   // Infrastructure Data
   const [infraData, setInfraData] = useState<{roads: any, buildings: any, facilities: any} | null>(null);
   const [showInfra, setShowInfra] = useState<boolean>(true);
+  const [showSensitivity, setShowSensitivity] = useState<boolean>(false);
 
   // Forecast Timeline State
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
@@ -275,6 +277,7 @@ export default function DashboardPage() {
         properties: {
           id: c.id,
           risk_level: c.risk_level,
+          rain_sensitivity: c.rain_sensitivity ?? 'Resilient',
           prob: c.flood_probability_percent,
           elev: c.elevation,
           precip_3d: c.precip_3d,
@@ -457,6 +460,20 @@ export default function DashboardPage() {
                 {showInfra ? 'Infra: ON' : 'Infra: OFF'}
               </button>
             </div>
+
+            {/* Rainfall Sensitivity Toggle */}
+            <div className="flex items-center gap-1.5 text-xs text-[#8A9EB8] ml-2 pl-2 border-l border-[#1A2C46]">
+              <Sliders size={13} className={showSensitivity ? "text-purple-400" : "text-gray-500"} />
+              <button 
+                onClick={() => setShowSensitivity(!showSensitivity)}
+                className={clsx(
+                  "px-2.5 py-1 rounded-lg border transition-colors",
+                  showSensitivity ? "bg-purple-500/20 text-purple-400 border-purple-500/40 font-bold" : "bg-[#0D1B2E] text-gray-400 border-[#1A2C46] hover:bg-[#15253e]"
+                )}
+              >
+                {showSensitivity ? 'Sensitivity: ON' : 'Sensitivity: OFF'}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -625,14 +642,25 @@ export default function DashboardPage() {
                 type="circle"
                 paint={{
                   'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 6, 9, 14, 12, 22],
-                  'circle-color': [
-                    'match',
-                    ['get', 'risk_level'],
-                    'Critical', '#ef4444',
-                    'High', '#f97316',
-                    'Moderate', '#f59e0b',
-                    '#10b981',
-                  ],
+                  'circle-color': showSensitivity
+                    ? [
+                        'match',
+                        ['get', 'rain_sensitivity'],
+                        'Flooded at any rain', '#7C3AED',
+                        'Extremely sensitive', '#C026D3',
+                        'Sensitive', '#EF4444',
+                        'Moderate', '#FB923C',
+                        'Resilient', '#22C55E',
+                        '#22C55E',
+                      ]
+                    : [
+                        'match',
+                        ['get', 'risk_level'],
+                        'Critical', '#ef4444',
+                        'High', '#f97316',
+                        'Moderate', '#f59e0b',
+                        '#10b981',
+                      ],
                   'circle-opacity': 0.35,
                   'circle-blur': 0.6,
                 }}
@@ -643,14 +671,25 @@ export default function DashboardPage() {
                 type="circle"
                 paint={{
                   'circle-radius': ['interpolate', ['linear'], ['zoom'], 6, 3.5, 9, 7, 12, 12],
-                  'circle-color': [
-                    'match',
-                    ['get', 'risk_level'],
-                    'Critical', '#ef4444',
-                    'High', '#f97316',
-                    'Moderate', '#f59e0b',
-                    '#10b981',
-                  ],
+                  'circle-color': showSensitivity
+                    ? [
+                        'match',
+                        ['get', 'rain_sensitivity'],
+                        'Flooded at any rain', '#7C3AED',
+                        'Extremely sensitive', '#C026D3',
+                        'Sensitive', '#EF4444',
+                        'Moderate', '#FB923C',
+                        'Resilient', '#22C55E',
+                        '#22C55E',
+                      ]
+                    : [
+                        'match',
+                        ['get', 'risk_level'],
+                        'Critical', '#ef4444',
+                        'High', '#f97316',
+                        'Moderate', '#f59e0b',
+                        '#10b981',
+                      ],
                   'circle-stroke-width': 1.5,
                   'circle-stroke-color': '#ffffff',
                   'circle-stroke-opacity': 0.85,
@@ -742,36 +781,52 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-bold flex items-center gap-2">
                 <Layers size={15} className="text-blue-400" />
-                Flood Probability Scale
+                {showSensitivity ? 'Rainfall Sensitivity Scale' : 'Flood Probability Scale'}
               </span>
               <span className="text-xs text-[#8A9EB8] font-mono">{activeTimelineStep.label}</span>
             </div>
-            <div className="space-y-1.5 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-emerald-400 font-medium">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" /> Low Risk (&lt;20%)
-                </span>
-                <span className="font-mono text-[#8A9EB8] text-xs">{modulatedCells.filter(c => c.risk_level === 'Low').length}</span>
+            {showSensitivity ? (
+              <div className="space-y-1.5 text-xs">
+                {Object.entries(TIP_COLORS).map(([catLabel, catColor]) => (
+                  <div key={catLabel} className="flex items-center justify-between">
+                    <span className="flex items-center gap-2 font-medium" style={{ color: catColor }}>
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: catColor, boxShadow: `0 0 6px ${catColor}` }} />
+                      {catLabel}
+                    </span>
+                    <span className="font-mono text-[#8A9EB8] text-xs">
+                      {modulatedCells.filter(c => (c.rain_sensitivity ?? 'Resilient') === catLabel).length}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-amber-400 font-medium">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_6px_#f59e0b]" /> Moderate (20–50%)
-                </span>
-                <span className="font-mono text-[#8A9EB8] text-xs">{modulatedCells.filter(c => c.risk_level === 'Moderate').length}</span>
+            ) : (
+              <div className="space-y-1.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-emerald-400 font-medium">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" /> Low Risk (&lt;20%)
+                  </span>
+                  <span className="font-mono text-[#8A9EB8] text-xs">{modulatedCells.filter(c => c.risk_level === 'Low').length}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-amber-400 font-medium">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_6px_#f59e0b]" /> Moderate (20–50%)
+                  </span>
+                  <span className="font-mono text-[#8A9EB8] text-xs">{modulatedCells.filter(c => c.risk_level === 'Moderate').length}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-orange-400 font-medium">
+                    <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_6px_#f97316]" /> High Risk (50–75%)
+                  </span>
+                  <span className="font-mono text-[#8A9EB8] text-xs">{activeHighRiskCount}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-red-400 font-medium">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_6px_#ef4444]" /> Critical (&ge;75%)
+                  </span>
+                  <span className="font-mono text-[#8A9EB8] text-xs">{activeCriticalCount}</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-orange-400 font-medium">
-                  <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_6px_#f97316]" /> High Risk (50–75%)
-                </span>
-                <span className="font-mono text-[#8A9EB8] text-xs">{activeHighRiskCount}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-red-400 font-medium">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_6px_#ef4444]" /> Critical (&ge;75%)
-                </span>
-                <span className="font-mono text-[#8A9EB8] text-xs">{activeCriticalCount}</span>
-              </div>
-            </div>
+            )}
 
             {/* Infrastructure legend */}
             {showInfra && infraData && (
@@ -1145,6 +1200,9 @@ export default function DashboardPage() {
                     <span className="text-xs text-[#8A9EB8]">3-Day Cumulative (mm)</span>
                     <div className="text-base font-bold font-mono text-blue-400 mt-0.5">{selectedCell.precip_3d.toFixed(1)} mm</div>
                   </div>
+                </div>
+                <div className="mt-2.5">
+                  <TippingPointCard cell={selectedCell} />
                 </div>
               </div>
 

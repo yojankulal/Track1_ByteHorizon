@@ -88,6 +88,9 @@ export interface GridCell {
   location_name: string;
   residing_zone_name?: string;
   residing_zone_id?: string;
+  tipping_mm?: number | null;
+  tipping_margin_mm?: number | null;
+  rain_sensitivity?: string;
 }
 
 export interface GridResponse {

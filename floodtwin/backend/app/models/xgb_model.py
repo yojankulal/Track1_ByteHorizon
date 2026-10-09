@@ -268,6 +268,43 @@ def get_dataset() -> pd.DataFrame:
     return _dataset_df
 
 
+# ---------------------------------------------------------
+# Rainfall Sensitivity / Tipping Point Computation
+# ---------------------------------------------------------
+TIP_GRID_MM = np.arange(0, 310, 10)      # 3-day rain levels tested, 0..300 mm
+TIP_THRESHOLD = 0.5
+TIP_BANDS = [(25, "Extremely sensitive"), (60, "Sensitive"), (120, "Moderate")]
+
+
+def compute_tipping_points(cells_df: pd.DataFrame, threshold: float = TIP_THRESHOLD) -> np.ndarray:
+    """Model-estimated 3-day rainfall (mm) at which each cell first reaches `threshold`.
+    NaN = never within the tested range. 1-day rain is co-varied using each cell's own 1d/3d ratio."""
+    model = get_model()
+    r3 = cells_df["precip_3d"].to_numpy(float)
+    r1 = cells_df["precip_1d"].to_numpy(float)
+    ratio = np.where(r3 > 1e-6, r1 / np.maximum(r3, 1e-6), 0.35).clip(0, 1)
+    tip = np.full(len(cells_df), np.nan)
+    base = cells_df[FEATURES].copy()
+    for mm in TIP_GRID_MM:
+        X = base.copy()
+        X["precip_3d"] = mm
+        X["precip_1d"] = mm * ratio
+        prob = model.predict_proba(X[FEATURES])[:, 1]
+        tip[(prob >= threshold) & np.isnan(tip)] = mm
+    return tip
+
+
+def classify_sensitivity(tip: float) -> str:
+    if np.isnan(tip):
+        return "Resilient"
+    if tip == 0:
+        return "Flooded at any rain"
+    for upper, name in TIP_BANDS:
+        if tip < upper:
+            return name
+    return "Resilient"
+
+
 def generate_sulawesi_grid(sample_size: int = 1200) -> Dict[str, Any]:
     """
     Generate a deterministic, scientifically representative spatial grid
@@ -302,6 +339,7 @@ def generate_sulawesi_grid(sample_size: int = 1200) -> Dict[str, Any]:
     # Batch model prediction
     X = sampled_df[FEATURES]
     probabilities = model.predict_proba(X)[:, 1]
+    tips = compute_tipping_points(sampled_df)
 
     cells = []
     risk_counts = {"Low": 0, "Moderate": 0, "High": 0, "Critical": 0}
@@ -335,6 +373,9 @@ def generate_sulawesi_grid(sample_size: int = 1200) -> Dict[str, Any]:
             "flood_probability": prob,
             "flood_probability_percent": round(prob * 100, 2),
             "risk_level": risk,
+            "tipping_mm": None if np.isnan(tips[idx]) else float(tips[idx]),
+            "tipping_margin_mm": None if np.isnan(tips[idx]) else round(float(row["precip_3d"]) - float(tips[idx]), 1),
+            "rain_sensitivity": classify_sensitivity(tips[idx]),
             "target": int(row["target"]) if "target" in row else None,
             "location_name": loc_name,
             "residing_zone_name": zone_info["name"],
